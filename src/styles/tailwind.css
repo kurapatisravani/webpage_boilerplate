@@ -1,0 +1,222 @@
+/* src/index.css */
+
+/* 1. Import Tailwind's base, components, and utilities.
+   This should come first. */
+@import "tailwindcss";
+
+/* 2. Define your theme tokens using @theme.
+   Tailwind v4 will automatically create utilities like bg-primary, text-primary
+   if you define --color-primary-DEFAULT or --color-primary.
+   The -DEFAULT suffix is for the non-suffixed utility (e.g., bg-primary uses --color-primary-DEFAULT).
+   Use space-separated R G B values for colors if you want to use Tailwind's opacity modifiers (e.g., bg-primary/50).
+*/
+@theme {
+  /* Primary Colors */
+  --color-primary: rgb(29 78 216);    /* Blue-700 */
+  --color-primary-light: rgb(59 130 246);  /* Blue-500 */
+  --color-primary-dark: rgb(23 37 84);   /* Blue-900 */
+  
+  /* Secondary Colors */
+  --color-secondary: rgb(107 114 128);  /* Gray-500 */
+  --color-secondary-light: rgb(156 163 175);  /* Gray-400 */
+  --color-secondary-dark: rgb(55 65 81);  /* Gray-700 */
+  
+  /* Semantic Colors */
+  --color-success: rgb(34 197 94);    /* Green-500 */
+  --color-success-light: rgb(74 222 128);  /* Green-400 */
+  --color-success-dark: rgb(22 163 74);   /* Green-600 */
+  
+  --color-warning: rgb(234 179 8);    /* Yellow-500 */
+  --color-warning-light: rgb(250 204 21);  /* Yellow-400 */
+  --color-warning-dark: rgb(202 138 4);   /* Yellow-600 */
+  
+  --color-error: rgb(239 68 68);    /* Red-500 */
+  --color-error-light: rgb(248 113 113);  /* Red-400 */
+  --color-error-dark: rgb(220 38 38);   /* Red-600 */
+  
+  --color-info: rgb(59 130 246);    /* Blue-500 */
+  --color-info-light: rgb(96 165 250);  /* Blue-400 */
+  --color-info-dark: rgb(37 99 235);   /* Blue-600 */
+  
+  /* Text Colors */
+  --color-text: rgb(17 24 39);  /* Gray-900 */
+  --color-text-muted: rgb(75 85 99);  /* Gray-600 */
+  --color-text-inverted: rgb(255 255 255);  /* White */
+  
+  /* Background Colors */
+  --color-bg: rgb(255 255 255);  /* White */
+  --color-bg-surface: rgb(249 250 251);  /* Gray-50 */
+  --color-bg-muted: rgb(243 244 246);  /* Gray-100 */
+  
+  /* Border Colors */
+  --color-border: rgb(229 231 235);  /* Gray-200 */
+  --color-border-muted: rgb(209 213 219);  /* Gray-300 */
+
+  /* Font Families (Optional, for consistency) */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: "Georgia", Cambria, "Times New Roman", Times, serif;
+  --font-mono: "Menlo", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-DEFAULT: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  --spacing-unit: 0.25rem;
+}
+
+/* 3. Apply base styles */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    /* Primary Colors */
+    --color-primary: rgb(96 165 250);    /* Blue-400 */
+    --color-primary-light: rgb(147 197 253);  /* Blue-300 */
+    --color-primary-dark: rgb(59 130 246);   /* Blue-500 */
+    
+    /* Secondary Colors */
+    --color-secondary: rgb(156 163 175);  /* Gray-400 */
+    --color-secondary-light: rgb(209 213 219);  /* Gray-300 */
+    --color-secondary-dark: rgb(107 114 128);  /* Gray-500 */
+    
+    /* Semantic Colors */
+    --color-success: rgb(74 222 128);    /* Green-400 */
+    --color-success-light: rgb(134 239 172);  /* Green-300 */
+    --color-success-dark: rgb(34 197 94);   /* Green-500 */
+    
+    --color-warning: rgb(250 204 21);    /* Yellow-400 */
+    --color-warning-light: rgb(253 224 71);  /* Yellow-300 */
+    --color-warning-dark: rgb(234 179 8);   /* Yellow-500 */
+    
+    --color-error: rgb(248 113 113);    /* Red-400 */
+    --color-error-light: rgb(252 165 165);  /* Red-300 */
+    --color-error-dark: rgb(239 68 68);   /* Red-500 */
+    
+    --color-info: rgb(96 165 250);    /* Blue-400 */
+    --color-info-light: rgb(147 197 253);  /* Blue-300 */
+    --color-info-dark: rgb(59 130 246);   /* Blue-500 */
+    
+    /* Text Colors */
+    --color-text: rgb(243 244 246);  /* Gray-100 */
+    --color-text-muted: rgb(156 163 175);  /* Gray-400 */
+    --color-text-inverted: rgb(17 24 39);  /* Gray-900 */
+    
+    /* Background Colors */
+    --color-bg: rgb(17 24 39);  /* Gray-900 */
+    --color-bg-surface: rgb(31 41 55);  /* Gray-800 */
+    --color-bg-muted: rgb(55 65 81);  /* Gray-700 */
+    
+    /* Border Colors */
+    --color-border: rgb(55 65 81);  /* Gray-700 */
+    --color-border-muted: rgb(75 85 99);  /* Gray-600 */
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+    --shadow-DEFAULT: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  }
+
+  body {
+    @apply bg-bg text-text;
+  }
+}
+
+/* 4. Define custom utilities */
+@layer utilities {
+  /* Primary Colors */
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .bg-primary-light {
+    background-color: var(--color-primary-light);
+  }
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark);
+  }
+  
+  /* Secondary Colors */
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  .bg-secondary-light {
+    background-color: var(--color-secondary-light);
+  }
+  .bg-secondary-dark {
+    background-color: var(--color-secondary-dark);
+  }
+  
+  /* Semantic Colors */
+  .bg-success {
+    background-color: var(--color-success);
+  }
+  .bg-success-light {
+    background-color: var(--color-success-light);
+  }
+  .bg-success-dark {
+    background-color: var(--color-success-dark);
+  }
+  
+  .bg-warning {
+    background-color: var(--color-warning);
+  }
+  .bg-warning-light {
+    background-color: var(--color-warning-light);
+  }
+  .bg-warning-dark {
+    background-color: var(--color-warning-dark);
+  }
+  
+  .bg-error {
+    background-color: var(--color-error);
+  }
+  .bg-error-light {
+    background-color: var(--color-error-light);
+  }
+  .bg-error-dark {
+    background-color: var(--color-error-dark);
+  }
+  
+  .bg-info {
+    background-color: var(--color-info);
+  }
+  .bg-info-light {
+    background-color: var(--color-info-light);
+  }
+  .bg-info-dark {
+    background-color: var(--color-info-dark);
+  }
+  
+  /* Background Colors */
+  .bg-bg {
+    background-color: var(--color-bg);
+  }
+  .bg-bg-surface {
+    background-color: var(--color-bg-surface);
+  }
+  .bg-bg-muted {
+    background-color: var(--color-bg-muted);
+  }
+  
+  /* Text Colors */
+  .text-text {
+    color: var(--color-text);
+  }
+  .text-text-muted {
+    color: var(--color-text-muted);
+  }
+  .text-text-inverted {
+    color: var(--color-text-inverted);
+  }
+  
+  /* Border Colors */
+  .border-border {
+    border-color: var(--color-border);
+  }
+  .border-border-muted {
+    border-color: var(--color-border-muted);
+  }
+}
