@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 
 export type SwitchSize = 'sm' | 'md' | 'lg';
@@ -28,6 +28,7 @@ export interface SwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   
   // Animation
   enableAnimation?: boolean;
+  animationStyle?: 'bounce' | 'elastic' | 'smooth' | 'none';
   
   // Layout
   labelPlacement?: 'start' | 'end' | 'top' | 'bottom';
@@ -64,6 +65,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   
   // Animation
   enableAnimation = true,
+  animationStyle = 'elastic',
   
   // Layout
   labelPlacement = 'end',
@@ -82,6 +84,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   const [isChecked, setIsChecked] = useState<boolean>(checked !== undefined ? checked : defaultChecked !== undefined ? defaultChecked : false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [isPressed, setIsPressed] = useState<boolean>(false);
   
   // Generate unique ID if not provided
   const uniqueId = React.useId();
@@ -118,6 +121,18 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
     setIsFocused(false);
     if (onBlur) onBlur(e);
   };
+
+  // Handle mouse down
+  const handleMouseDown = () => {
+    if (!disabled && !readOnly) {
+      setIsPressed(true);
+    }
+  };
+
+  // Handle mouse up
+  const handleMouseUp = () => {
+    setIsPressed(false);
+  };
   
   // Size styles for switch track
   const trackSizeClasses = {
@@ -128,16 +143,16 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   
   // Size styles for switch thumb
   const thumbSizeClasses = {
-    sm: 'w-3 h-3 translate-x-0.5',
-    md: 'w-4 h-4 translate-x-0.5',
-    lg: 'w-5 h-5 translate-x-0.5',
+    sm: 'w-3 h-3',
+    md: 'w-4 h-4',
+    lg: 'w-5 h-5',
   };
   
-  // Checked thumb position
-  const thumbCheckedPosition = {
-    sm: 'translate-x-3',
-    md: 'translate-x-4',
-    lg: 'translate-x-6',
+  // Thumb position calculations
+  const thumbPositions = {
+    sm: { initial: '2px', checked: 'calc(100% - 14px)' },
+    md: { initial: '2px', checked: 'calc(100% - 18px)' },
+    lg: { initial: '2px', checked: 'calc(100% - 22px)' },
   };
   
   // Size styles for label
@@ -171,23 +186,79 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
     bottom: 'flex-col space-y-1',
   };
   
-  // Animation variants for thumb
-  const thumbVariants: Variants = {
-    unchecked: {
-      x: 0,
-      transition: {
+  // Animation variants for thumb based on animation style
+  const getThumbVariants = (): Variants => {
+    const variants: Record<string, any> = {
+      unchecked: {
+        x: thumbPositions[size].initial,
+      },
+      checked: {
+        x: thumbPositions[size].checked,
+      }
+    };
+
+    // Apply different transition types based on animationStyle
+    if (animationStyle === 'elastic') {
+      variants.checked.transition = {
         type: 'spring',
         stiffness: 500,
-        damping: 30
-      }
+        damping: 25
+      };
+      variants.unchecked.transition = {
+        type: 'spring',
+        stiffness: 500,
+        damping: 25
+      };
+    } else if (animationStyle === 'bounce') {
+      variants.checked.transition = {
+        type: 'spring',
+        stiffness: 400,
+        damping: 10
+      };
+      variants.unchecked.transition = {
+        type: 'spring',
+        stiffness: 400,
+        damping: 10
+      };
+    } else if (animationStyle === 'smooth') {
+      variants.checked.transition = {
+        type: 'tween',
+        duration: 0.2,
+        ease: 'easeInOut'
+      };
+      variants.unchecked.transition = {
+        type: 'tween',
+        duration: 0.2,
+        ease: 'easeInOut'
+      };
+    }
+
+    return variants;
+  };
+
+  // Track animation variants
+  const trackVariants: Variants = {
+    unchecked: {
+      backgroundColor: 'var(--bg-surface-hover)',
+      transition: { duration: 0.2 }
     },
     checked: {
-      x: size === 'sm' ? 12 : size === 'md' ? 16 : 24,
-      transition: {
-        type: 'spring',
-        stiffness: 500,
-        damping: 30
-      }
+      backgroundColor: `var(--${colorScheme === 'primary' ? 'primary' : 
+                              colorScheme === 'secondary' ? 'secondary' : 
+                              colorScheme === 'success' ? 'success' : 
+                              colorScheme === 'error' ? 'error' : 
+                              colorScheme === 'warning' ? 'warning' : 'primary'})`,
+      transition: { duration: 0.2 }
+    }
+  };
+  
+  // Ripple animation variants
+  const rippleVariants: Variants = {
+    initial: { scale: 0, opacity: 0.5 },
+    animate: { 
+      scale: 1.5,
+      opacity: 0,
+      transition: { duration: 0.4, ease: "easeOut" }
     }
   };
   
@@ -216,19 +287,21 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   const trackClasses = [
     'relative rounded-full transition-colors duration-200',
     trackSizeClasses[size],
-    isChecked 
-      ? colorSchemeClasses[colorScheme] 
-      : 'bg-bg-surface-hover',
     isFocused && !disabled 
-      ? `ring-2 ring-${colorScheme}/30` 
+      ? `ring-2 ${colorScheme === 'primary' ? 'ring-primary/30' : 
+          colorScheme === 'secondary' ? 'ring-secondary/30' : 
+          colorScheme === 'success' ? 'ring-success/30' : 
+          colorScheme === 'error' ? 'ring-error/30' : 
+          colorScheme === 'warning' ? 'ring-warning/30' : 'ring-primary/30'}`
       : '',
+    disabled ? 'opacity-50' : '',
   ].filter(Boolean).join(' ');
   
   // Thumb classes
   const thumbClasses = [
-    'absolute rounded-full bg-white shadow transform transition-transform',
+    'absolute rounded-full bg-white shadow transform',
     thumbSizeClasses[size],
-    isChecked ? thumbCheckedPosition[size] : '',
+    'flex items-center justify-center',
   ].filter(Boolean).join(' ');
   
   return (
@@ -240,6 +313,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
       variants={containerVariants}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
     >
       <div className="relative">
         {/* Hidden actual input for accessibility */}
@@ -263,16 +338,21 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
         />
         
         {/* Custom switch visual */}
-        <div className={trackClasses}>
+        <motion.div 
+          className={trackClasses}
+          variants={trackVariants}
+          animate={isChecked ? "checked" : "unchecked"}
+          data-state={isChecked ? "checked" : "unchecked"}
+        >
           {/* Icons in track */}
-          <div className="absolute inset-0 flex justify-between items-center px-1.5 pointer-events-none">
+          <div className="absolute inset-0 flex justify-between items-center px-1 pointer-events-none">
             {checkedIcon && (
               <div className={`text-white ${iconSizeClasses[size]} ${isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
                 {checkedIcon}
               </div>
             )}
             {uncheckedIcon && (
-              <div className={`text-text-muted ${iconSizeClasses[size]} ${isChecked ? 'opacity-0' : 'opacity-100'} transition-opacity`}>
+              <div className={`text-text-muted ml-auto ${iconSizeClasses[size]} ${isChecked ? 'opacity-0' : 'opacity-100'} transition-opacity`}>
                 {uncheckedIcon}
               </div>
             )}
@@ -281,8 +361,10 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
           {/* Thumb/Handle */}
           <motion.div
             className={thumbClasses}
-            variants={thumbVariants}
+            variants={getThumbVariants()}
             animate={isChecked ? 'checked' : 'unchecked'}
+            whileHover={!disabled ? { scale: 1.1 } : undefined}
+            whileTap={!disabled ? { scale: 0.95 } : undefined}
           >
             {thumbIcon && (
               <div className="absolute inset-0 flex items-center justify-center text-text-muted">
@@ -290,7 +372,36 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
               </div>
             )}
           </motion.div>
-        </div>
+
+          {/* Ripple effect */}
+          <AnimatePresence>
+            {isPressed && !disabled && (
+              <motion.span
+                key="ripple"
+                className={`absolute rounded-full ${
+                  colorScheme === 'primary' ? 'bg-primary/20' :
+                  colorScheme === 'secondary' ? 'bg-secondary/20' :
+                  colorScheme === 'success' ? 'bg-success/20' :
+                  colorScheme === 'error' ? 'bg-error/20' :
+                  colorScheme === 'warning' ? 'bg-warning/20' : 'bg-primary/20'
+                }`}
+                style={{ 
+                  width: size === 'sm' ? '16px' : size === 'md' ? '20px' : '24px', 
+                  height: size === 'sm' ? '16px' : size === 'md' ? '20px' : '24px',
+                  left: isChecked 
+                    ? `calc(${thumbPositions[size].checked} - ${size === 'sm' ? '6px' : size === 'md' ? '8px' : '10px'})` 
+                    : `calc(${thumbPositions[size].initial} - ${size === 'sm' ? '6px' : size === 'md' ? '8px' : '10px'})`,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                }}
+                variants={rippleVariants}
+                initial="initial"
+                animate="animate"
+                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              />
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
       
       {/* Label text */}

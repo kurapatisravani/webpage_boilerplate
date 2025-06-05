@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { FaSort, FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { FaSort, FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight, FaSearch, FaFileExport, FaFilter, FaTimes, FaFileDownload, FaFileCsv, FaFilePdf, FaFileExcel } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Typography } from '../../atoms/Typography/Typography';
 import { Button } from '../../atoms/Button/Button';
+import { Input } from '../../atoms/Input/Input';
+import { Dropdown } from '../../atoms/Dropdown';
 
 export type SortDirection = 'asc' | 'desc' | null;
+export type ExportFormat = 'csv' | 'excel' | 'pdf' | 'json';
 
 export interface TableColumn<T = any> {
   key: string;
@@ -13,6 +16,10 @@ export interface TableColumn<T = any> {
   sortable?: boolean;
   width?: string | number;
   align?: 'left' | 'center' | 'right';
+  searchable?: boolean;
+  filterable?: boolean;
+  renderCell?: (value: any, row: T) => React.ReactNode;
+  filterOptions?: { label: string; value: any }[];
 }
 
 export interface TableProps<T = any> {
@@ -36,6 +43,19 @@ export interface TableProps<T = any> {
   pageSize?: number;
   pageSizeOptions?: number[];
   
+  // Search & Filter
+  searchable?: boolean;
+  globalSearch?: boolean;
+  columnSearch?: boolean;
+  defaultSearchValue?: string;
+  onSearch?: (searchTerm: string) => void;
+  
+  // Export
+  exportable?: boolean;
+  exportFormats?: ExportFormat[];
+  exportFileName?: string;
+  onExport?: (format: ExportFormat, data: T[]) => void;
+  
   // Interaction
   selectable?: boolean;
   selectedRows?: (string | number)[];
@@ -44,6 +64,10 @@ export interface TableProps<T = any> {
   emptyState?: React.ReactNode;
   loading?: boolean;
   loadingRows?: number;
+  
+  // Advanced features
+  resizableColumns?: boolean;
+  virtualized?: boolean;
   
   // HTML props
   className?: string;
@@ -72,6 +96,19 @@ export const Table = <T extends any>({
   pageSize: initialPageSize = 10,
   pageSizeOptions = [5, 10, 25, 50],
   
+  // Search & Filter
+  searchable = false,
+  globalSearch = true,
+  columnSearch = false,
+  defaultSearchValue = '',
+  onSearch,
+  
+  // Export
+  exportable = false,
+  exportFormats = ['csv', 'excel', 'pdf', 'json'],
+  exportFileName = 'table-data',
+  onExport,
+  
   // Interaction
   selectable = false,
   selectedRows = [],
@@ -80,6 +117,10 @@ export const Table = <T extends any>({
   emptyState,
   loading = false,
   loadingRows = 3,
+  
+  // Advanced features
+  resizableColumns = false,
+  virtualized = false,
   
   // HTML props
   className = '',
@@ -96,7 +137,13 @@ export const Table = <T extends any>({
   
   // State for selection
   const [selected, setSelected] = useState<(string | number)[]>(selectedRows);
-  
+
+  // State for search
+  const [searchTerm, setSearchTerm] = useState(defaultSearchValue);
+  const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+
   // Reset pagination when data changes
   useEffect(() => {
     setCurrentPage(1);
@@ -106,25 +153,88 @@ export const Table = <T extends any>({
   useEffect(() => {
     setSelected(selectedRows);
   }, [selectedRows]);
+
+  // Update the useEffect for search bar
+  useEffect(() => {
+    if (showSearchBar) {
+      // Focus will be handled by autoFocus on the Input
+      setSearchTerm('');
+    }
+  }, [showSearchBar]);
   
-  // Sort the data
-  const sortedData = React.useMemo(() => {
-    if (!sortColumn || !sortDirection) {
+  // Filter the data based on search term and column filters
+  const filteredData = useMemo(() => {
+    if (!searchable || (!searchTerm && Object.keys(columnFilters).length === 0)) {
       return [...data];
+    }
+    
+    return [...data].filter(row => {
+      // Apply global search if enabled and search term exists
+      if (globalSearch && searchTerm) {
+        const searchableColumns = columns.filter(col => col.searchable !== false);
+        const rowMatchesSearch = searchableColumns.some(column => {
+          const value = column.accessor 
+            ? column.accessor(row) 
+            : (row as any)[column.key];
+          
+          if (value === null || value === undefined) return false;
+          
+          const stringValue = typeof value === 'string' 
+            ? value 
+            : (React.isValidElement(value) ? '' : String(value));
+          
+          return stringValue.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+        
+        if (!rowMatchesSearch) return false;
+      }
+      
+      // Apply column filters if any exist
+      if (Object.keys(columnFilters).length > 0) {
+        for (const [key, filterValue] of Object.entries(columnFilters)) {
+          if (!filterValue) continue;
+          
+          const column = columns.find(col => col.key === key);
+          if (!column) continue;
+          
+          const value = column.accessor 
+            ? column.accessor(row) 
+            : (row as any)[key];
+          
+          if (value === null || value === undefined) return false;
+          
+          const stringValue = typeof value === 'string' 
+            ? value 
+            : (React.isValidElement(value) ? '' : String(value));
+          
+          if (!stringValue.toLowerCase().includes(String(filterValue).toLowerCase())) {
+            return false;
+          }
+        }
+      }
+      
+      return true;
+    });
+  }, [data, searchTerm, columnFilters, columns, globalSearch]);
+  
+  // Sort the filtered data
+  const sortedData = useMemo(() => {
+    if (!sortColumn || !sortDirection) {
+      return [...filteredData];
     }
     
     const column = columns.find(col => col.key === sortColumn);
     if (!column) {
-      return [...data];
+      return [...filteredData];
     }
     
-    return [...data].sort((a, b) => {
+    return [...filteredData].sort((a, b) => {
       const valueA = column.accessor ? column.accessor(a) : (a as any)[sortColumn];
       const valueB = column.accessor ? column.accessor(b) : (b as any)[sortColumn];
       
-      // Convert to string for comparison if not already
-      const strA = typeof valueA === 'string' ? valueA : String(valueA);
-      const strB = typeof valueB === 'string' ? valueB : String(valueB);
+      // Handle React elements or convert to string for comparison
+      const strA = React.isValidElement(valueA) ? '' : (typeof valueA === 'string' ? valueA : String(valueA));
+      const strB = React.isValidElement(valueB) ? '' : (typeof valueB === 'string' ? valueB : String(valueB));
       
       if (sortDirection === 'asc') {
         return strA.localeCompare(strB);
@@ -132,7 +242,7 @@ export const Table = <T extends any>({
         return strB.localeCompare(strA);
       }
     });
-  }, [data, sortColumn, sortDirection, columns]);
+  }, [filteredData, sortColumn, sortDirection, columns]);
   
   // Handle sorting
   const handleSort = (columnKey: string) => {
@@ -174,6 +284,143 @@ export const Table = <T extends any>({
     }
     
     return <FaSort className="ml-1 opacity-30" size={14} />;
+  };
+  
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Reset to first page on search
+    
+    if (onSearch) {
+      onSearch(value);
+    }
+  };
+  
+  // Toggle search bar visibility
+  const toggleSearchBar = () => {
+    setShowSearchBar(prev => !prev);
+    if (showSearchBar) {
+      // Clear search when hiding search bar
+      handleSearch('');
+    }
+  };
+  
+  // Handle column filter change
+  const handleColumnFilter = (columnKey: string, value: any) => {
+    setColumnFilters(prev => ({
+      ...prev,
+      [columnKey]: value
+    }));
+    setCurrentPage(1); // Reset to first page on filter change
+  };
+  
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setColumnFilters({});
+    setCurrentPage(1);
+  };
+  
+  // Handle export
+  const handleExport = (format: ExportFormat) => {
+    setExportMenuOpen(false);
+    
+    if (onExport) {
+      // Use selected rows if available, otherwise use all filtered data
+      const dataToExport = selected.length > 0 
+        ? sortedData.filter(row => selected.includes(keyExtractor(row)))
+        : sortedData;
+      
+      onExport(format, dataToExport);
+    } else {
+      // Default export implementation
+      exportData(format, selected.length > 0 
+        ? sortedData.filter(row => selected.includes(keyExtractor(row)))
+        : sortedData);
+    }
+  };
+  
+  // Default export implementation
+  const exportData = (format: ExportFormat, dataToExport: T[]) => {
+    if (format === 'csv') {
+      exportCsv(dataToExport);
+    } else if (format === 'json') {
+      exportJson(dataToExport);
+    } else {
+      // For other formats, show a message that they're not implemented
+      alert(`Export to ${format} is not implemented in this demo. Implement custom export handler.`);
+    }
+  };
+  
+  // Export to CSV
+  const exportCsv = (dataToExport: T[]) => {
+    // Get column headers (excluding non-exportable columns)
+    const exportableColumns = columns.filter(col => !col.key.startsWith('actions'));
+    const headers = exportableColumns.map(col => typeof col.header === 'string' ? col.header : col.key);
+    
+    // Convert data to CSV rows
+    const rows = dataToExport.map(row => {
+      return exportableColumns.map(column => {
+        const value = column.accessor 
+          ? column.accessor(row) 
+          : (row as any)[column.key];
+        
+        // Handle React elements or convert to string
+        return React.isValidElement(value) ? '' : (value === null || value === undefined ? '' : String(value));
+      });
+    });
+    
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${exportFileName}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  // Export to JSON
+  const exportJson = (dataToExport: T[]) => {
+    // Filter out non-exportable columns
+    const exportableColumns = columns.filter(col => !col.key.startsWith('actions'));
+    
+    // Convert data to simple JSON objects (no React elements)
+    const jsonData = dataToExport.map(row => {
+      const newRow: Record<string, any> = {};
+      
+      exportableColumns.forEach(column => {
+        const value = column.accessor 
+          ? column.accessor(row) 
+          : (row as any)[column.key];
+        
+        newRow[column.key] = React.isValidElement(value) 
+          ? '' 
+          : (value === null || value === undefined ? '' : value);
+      });
+      
+      return newRow;
+    });
+    
+    // Create download link
+    const jsonContent = JSON.stringify(jsonData, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${exportFileName}.json`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
   
   // Pagination calculations
@@ -284,8 +531,157 @@ export const Table = <T extends any>({
     );
   };
   
+  // Render toolbar with search and export options
+  const renderToolbar = () => {
+    if (!searchable && !exportable && !selectable) return null;
+    
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          {/* Global search toggle */}
+          {searchable && globalSearch && (
+            <div className="relative">
+              <AnimatePresence>
+                {showSearchBar ? (
+                  <motion.div
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 'auto', opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center"
+                  >
+                    <Input
+                      type="text"
+                      placeholder="Search..."
+                      value={searchTerm}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'md'}
+                      className="mr-2"
+                      leftIcon={<FaSearch />}
+                      clearable={searchTerm.length > 0}
+                      onClear={() => handleSearch('')}
+                      autoFocus
+                    />
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+              
+              <Button
+                variant={showSearchBar ? 'primary' : 'outline'}
+                size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'md'}
+                leftIcon={FaSearch}
+                onClick={toggleSearchBar}
+                aria-label={showSearchBar ? 'Hide search' : 'Show search'}
+                className={showSearchBar ? 'ml-2' : ''}
+              >
+                {!showSearchBar && 'Search'}
+              </Button>
+            </div>
+          )}
+          
+          {/* Filter indicator and clear button */}
+          {Object.keys(columnFilters).length > 0 && (
+            <div className="flex items-center gap-1">
+              <Typography variant="body2" className="flex items-center">
+                <FaFilter className="mr-1" />
+                {Object.keys(columnFilters).length} filter{Object.keys(columnFilters).length > 1 ? 's' : ''}
+              </Typography>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={FaTimes}
+                onClick={clearAllFilters}
+                aria-label="Clear all filters"
+              >
+                Clear
+              </Button>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {/* Export options */}
+          {exportable && (
+            <div className="relative">
+              <Button
+                variant="outline"
+                size={size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : 'md'}
+                leftIcon={FaFileExport}
+                onClick={() => setExportMenuOpen(prev => !prev)}
+                aria-label="Export data"
+              >
+                Export
+              </Button>
+              
+              <AnimatePresence>
+                {exportMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 z-10 mt-1 w-48 bg-bg-surface border border-border rounded-md shadow-lg"
+                  >
+                    <div className="py-1">
+                      {exportFormats.includes('csv') && (
+                        <button
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-bg-surface-hover"
+                          onClick={() => handleExport('csv')}
+                        >
+                          <FaFileCsv className="mr-2" />
+                          Export as CSV
+                        </button>
+                      )}
+                      {exportFormats.includes('excel') && (
+                        <button
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-bg-surface-hover"
+                          onClick={() => handleExport('excel')}
+                        >
+                          <FaFileExcel className="mr-2" />
+                          Export as Excel
+                        </button>
+                      )}
+                      {exportFormats.includes('pdf') && (
+                        <button
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-bg-surface-hover"
+                          onClick={() => handleExport('pdf')}
+                        >
+                          <FaFilePdf className="mr-2" />
+                          Export as PDF
+                        </button>
+                      )}
+                      {exportFormats.includes('json') && (
+                        <button
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-bg-surface-hover"
+                          onClick={() => handleExport('json')}
+                        >
+                          <FaFileDownload className="mr-2" />
+                          Export as JSON
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+          
+          {/* Selected rows indicator */}
+          {selectable && selected.length > 0 && (
+            <Typography variant="body2" className="flex items-center">
+              {selected.length} row{selected.length > 1 ? 's' : ''} selected
+            </Typography>
+          )}
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <div className={`w-full ${className}`}>
+      {/* Toolbar with search and export options */}
+      {renderToolbar()}
+      
       {/* Table container */}
       <div className="w-full overflow-x-auto">
         <table 

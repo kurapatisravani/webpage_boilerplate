@@ -1,48 +1,37 @@
 // src/pages/ComponentShowcasePage.tsx
 import React, { useState } from 'react';
-import { Button } from '../components/atoms/Button/Button';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
 import { 
   FaHeart, FaArrowRight, FaCheck, FaStar, FaDownload, 
-  FaBell, FaSearch, FaRocket, FaShieldAlt, FaMagic, FaGift,
-  FaLayerGroup, FaPalette, FaBoxOpen, FaCode, FaFont, FaParagraph, FaHeading,
-  FaUser, FaEnvelope, FaLock, FaCalendar, FaPhone, FaLink, FaGlobe, FaTimes, FaExclamationTriangle, FaFileAlt, FaBook, FaHome, FaImage, FaMapMarkerAlt, FaShare, FaComment, FaTrophy, FaCoins, FaSun, FaMoon, FaExpand, FaPlay, FaList, FaInfo, FaSpinner, FaMusic, FaTable, FaColumns, FaWindowMaximize, FaCog, FaCircle
+  FaTimes, FaSearch, FaSun, FaMoon, 
+  FaCalendarAlt, FaExclamationTriangle, 
+  FaInfo, FaEnvelope, FaUser, FaLock, FaSpinner, FaBell,
+  FaFeather, FaRocket, FaHome, FaList, FaShieldAlt, FaMagic,
+  FaGift, FaLink, FaFileAlt, FaCode, FaBook, FaCalendar, FaCog, FaGlobe,
+  FaBoxOpen, FaLayerGroup, FaPalette, FaUniversalAccess, FaCubes, FaCircle
 } from 'react-icons/fa';
-import { 
-  Typography, 
-  Heading1, 
-  Heading2, 
-  Heading3, 
-  Heading4, 
-  Heading5, 
-  Heading6, 
-  Body1, 
-  Body2, 
-  Caption, 
-  Overline, 
-  Lead, 
-  Quote,
-  Subtitle1,
-  Subtitle2
-} from '../components/atoms/Typography/Typography';
+import { ThemeToggleButton } from '../components/ThemeToggleButton';
+import { Button } from '../components/atoms/Button/Button';
+import { Typography } from '../components/atoms/Typography/Typography';
 import { Input } from '../components/atoms/Input/Input';
-import { Accordion, AccordionItem } from '../components/molecules/Accordion';
-import { Tabs } from '../components/molecules/Tabs';
+import { Accordion } from '../components/molecules/Accordion/Accordion';
+import { Tabs } from '../components/molecules/Tabs/Tabs';
 import { Card } from '../components/molecules/Card/Card';
 import { Tooltip } from '../components/molecules/Tooltip/Tooltip';
-import { Notification } from '../components/molecules/Notification/Notification';
-import { Modal } from '../components/organisms/Modal';
-import { Nav } from '../components/organisms/Nav';
-import { Table } from '../components/organisms/Table';
-
-// Import new atom components
-import { Badge } from '../components/atoms/Badge';
-import { Checkbox } from '../components/atoms/Checkbox';
-import { Radio } from '../components/atoms/Radio';
-import { Switch } from '../components/atoms/Switch';
-import { Icon } from '../components/atoms/Icon';
-import { Spinner } from '../components/atoms/Spinner';
+import { Modal } from '../components/organisms/Modal/Modal';
+import { Badge } from '../components/atoms/Badge/Badge';
+import { Checkbox } from '../components/atoms/Checkbox/Checkbox';
+import { Radio } from '../components/atoms/Radio/Radio';
+import { Switch } from '../components/atoms/Switch/Switch';
+import { Icon } from '../components/atoms/Icon/Icon';
+import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Dropdown } from '../components/atoms/Dropdown';
+import { Nav } from '../components/organisms/Nav/Nav';
+import { Table } from '../components/organisms/Table/Table';
+import { Calendar } from '../components/molecules/Calendar/Calendar';
+import type { DateRange } from '../components/molecules/Calendar/Calendar';
+import { DatePicker } from '../components/molecules/DatePicker/DatePicker';
+import { ToastProvider, useToast } from '../components/molecules/Toast';
+import type { ToastType, ToastPosition, ToastAnimationStyle } from '../components/molecules/Toast';
 
 // Type definitions
 type ComponentCategory = 'atoms' | 'molecules' | 'organisms' | 'templates' | 'pages';
@@ -80,6 +69,13 @@ const Subsection: React.FC<{ title: string; children: React.ReactNode }> = ({ ti
 
 // Component registry - define all components here
 const componentRegistry: ComponentType[] = [
+  {
+    name: 'Design Principles',
+    category: 'atoms',
+    description: 'Core design principles and guidelines that inform our component library',
+    component: DesignPrinciplesShowcase,
+    implemented: true
+  },
   {
     name: 'Button',
     category: 'atoms',
@@ -179,13 +175,6 @@ const componentRegistry: ComponentType[] = [
     implemented: true
   },
   {
-    name: 'Notification',
-    category: 'molecules',
-    description: 'Temporary messages that appear to inform users',
-    component: NotificationShowcase,
-    implemented: true
-  },
-  {
     name: 'Modal',
     category: 'organisms',
     description: 'Dialog window that appears over the main content',
@@ -211,6 +200,27 @@ const componentRegistry: ComponentType[] = [
     category: 'atoms',
     description: 'Color palette and theme demonstration',
     component: ColorsShowcase,
+    implemented: true
+  },
+  {
+    name: 'Calendar',
+    category: 'molecules',
+    description: 'Date selection component with range selection and customization options',
+    component: CalendarShowcase,
+    implemented: true
+  },
+  {
+    name: 'Toast',
+    category: 'molecules',
+    description: 'Lightweight notification system with different positions and animations',
+    component: ToastShowcase,
+    implemented: true
+  },
+  {
+    name: 'DatePicker',
+    category: 'molecules',
+    description: 'Date input with calendar popup for easy date selection',
+    component: DatePickerShowcase,
     implemented: true
   }
 ];
@@ -329,7 +339,7 @@ function ButtonShowcase() {
 
       <Subsection title="Epic Animation Examples">
         <Button 
-          leftIcon={FaRocket} 
+          leftIcon={FaRocket}
           animationStyle="grow"
           onClick={() => alert('Launching...')}
         >
@@ -352,12 +362,12 @@ function ButtonShowcase() {
           Enchant
         </Button>
         <Button 
-          leftIcon={FaGift} 
+          leftIcon={FaGift}
           variant="primary" 
           animationStyle="bounce"
           onClick={() => alert('Gift received!')}
         >
-          Reward
+          Gift
         </Button>
       </Subsection>
     </div>
@@ -377,45 +387,45 @@ function TypographyShowcase() {
 
       <Subsection title="Headings">
         <div className="w-full space-y-4">
-          <Heading1>Heading 1</Heading1>
-          <Heading2>Heading 2</Heading2>
-          <Heading3>Heading 3</Heading3>
-          <Heading4>Heading 4</Heading4>
-          <Heading5>Heading 5</Heading5>
-          <Heading6>Heading 6</Heading6>
+          <Typography variant="h1">Heading 1</Typography>
+          <Typography variant="h2">Heading 2</Typography>
+          <Typography variant="h3">Heading 3</Typography>
+          <Typography variant="h4">Heading 4</Typography>
+          <Typography variant="h5">Heading 5</Typography>
+          <Typography variant="h6">Heading 6</Typography>
         </div>
       </Subsection>
 
       <Subsection title="Subtitles">
         <div className="w-full space-y-4">
-          <Subtitle1>Subtitle 1 - Used for medium emphasis text</Subtitle1>
-          <Subtitle2>Subtitle 2 - Used for medium emphasis text that is smaller</Subtitle2>
+          <Typography variant="subtitle1">Subtitle 1 - Used for medium emphasis text</Typography>
+          <Typography variant="subtitle2">Subtitle 2 - Used for medium emphasis text that is smaller</Typography>
         </div>
       </Subsection>
 
       <Subsection title="Body Text">
         <div className="w-full space-y-4">
-          <Body1>
+          <Typography variant="body1">
             Body 1 - This is the standard text style for body copy. It should be used for most paragraph text on your site.
             The font size and line height are designed for good readability on screens across devices.
-          </Body1>
-          <Body2>
+          </Typography>
+          <Typography variant="body2">
             Body 2 - This is a smaller text style for secondary or supporting content. It can be used for less important information,
             captions, or places where space is limited.
-          </Body2>
+          </Typography>
         </div>
       </Subsection>
 
       <Subsection title="Special Text Styles">
         <div className="w-full space-y-4">
-          <Lead>
+          <Typography variant="lead">
             Lead - This larger, attention-grabbing text style is perfect for introductory paragraphs or important messages that need emphasis.
-          </Lead>
-          <Quote>
+          </Typography>
+          <Typography variant="quote">
             "Quote - This style is designed for quotations, featuring a left border and italic text to distinguish quoted content from regular paragraphs."
-          </Quote>
-          <Overline>Overline - Small uppercase text often used above headings</Overline>
-          <Caption>Caption - Very small text used for auxiliary information like image captions or footnotes</Caption>
+          </Typography>
+          <Typography variant="overline">Overline - Small uppercase text often used above headings</Typography>
+          <Typography variant="caption">Caption - Very small text used for auxiliary information like image captions or footnotes</Typography>
         </div>
       </Subsection>
 
@@ -1542,212 +1552,6 @@ function TooltipShowcase() {
           </div>
         </div>
       </Subsection>
-    </div>
-  );
-}
-
-// Notification showcase component
-function NotificationShowcase() {
-  const [notifications, setNotifications] = useState<{
-    id: string;
-    type: 'success' | 'error' | 'warning' | 'info' | 'neutral';
-    title: string;
-    message: string;
-    position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
-    animationStyle: AnimationStyle;
-  }[]>([]);
-
-  const addNotification = (type: 'success' | 'error' | 'warning' | 'info' | 'neutral', position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left', animationStyle: AnimationStyle, customTitle?: string, customMessage?: string) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const titles = {
-      success: 'Success',
-      error: 'Error',
-      warning: 'Warning',
-      info: 'Information',
-      neutral: 'Notification'
-    };
-    const messages = {
-      success: 'The operation completed successfully.',
-      error: 'An error occurred. Please try again.',
-      warning: 'Please review the information before proceeding.',
-      info: 'Here is some important information.',
-      neutral: 'System notification'
-    };
-    setNotifications(prev => [...prev, { 
-      id, 
-      type, 
-      title: customTitle || titles[type], 
-      message: customMessage || messages[type],
-      position,
-      animationStyle
-    }]);
-  };
-
-  const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  return (
-    <div className="p-6 bg-background rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-text-primary">Notifications</h2>
-
-      <Subsection title="Professional Notification Types">
-        <div className="flex flex-wrap gap-4">
-          <Button 
-            onClick={() => addNotification('success', 'top-right', 'fade')}
-            leftIcon={FaCheck}
-            variant="primary"
-          >
-            Success
-          </Button>
-          <Button 
-            onClick={() => addNotification('error', 'top-right', 'fade')}
-            leftIcon={FaTimes}
-            variant="danger"
-          >
-            Error
-          </Button>
-          <Button 
-            onClick={() => addNotification('warning', 'top-right', 'fade')}
-            leftIcon={FaExclamationTriangle}
-            variant="primary"
-          >
-            Warning
-          </Button>
-          <Button 
-            onClick={() => addNotification('info', 'top-right', 'fade')}
-            leftIcon={FaInfo}
-            variant="primary"
-          >
-            Information
-          </Button>
-        </div>
-      </Subsection>
-
-      <Subsection title="Notification Positions">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button 
-            onClick={() => addNotification('info', 'top-right', 'fade', 'Top Right', 'This notification appears in the top right corner')}
-            size="sm"
-          >
-            Top Right
-          </Button>
-          <Button 
-            onClick={() => addNotification('info', 'top-left', 'fade', 'Top Left', 'This notification appears in the top left corner')}
-            size="sm"
-          >
-            Top Left
-          </Button>
-          <Button 
-            onClick={() => addNotification('info', 'bottom-right', 'fade', 'Bottom Right', 'This notification appears in the bottom right corner')}
-            size="sm"
-          >
-            Bottom Right
-          </Button>
-          <Button 
-            onClick={() => addNotification('info', 'bottom-left', 'fade', 'Bottom Left', 'This notification appears in the bottom left corner')}
-            size="sm"
-          >
-            Bottom Left
-          </Button>
-        </div>
-      </Subsection>
-
-      <Subsection title="Subtle Animations">
-        <div className="flex flex-wrap gap-4">
-          <Button 
-            onClick={() => addNotification('info', 'top-right', 'fade')}
-            variant="outline"
-          >
-            Fade
-          </Button>
-          <Button 
-            onClick={() => addNotification('info', 'top-right', 'slide')}
-            variant="outline"
-          >
-            Slide
-          </Button>
-          <Button 
-            onClick={() => addNotification('info', 'top-right', 'scale')}
-            variant="outline"
-          >
-            Scale
-          </Button>
-        </div>
-      </Subsection>
-
-      <Subsection title="Business Notifications">
-        <div className="flex flex-wrap gap-4">
-          <Button 
-            onClick={() => {
-              const id = Math.random().toString(36).substr(2, 9);
-              setNotifications(prev => [...prev, {
-                id,
-                type: 'success',
-                title: 'Document Saved',
-                message: 'Your document has been saved successfully. All changes are up to date.',
-                position: 'top-right',
-                animationStyle: 'fade'
-              }]);
-            }}
-          >
-            Document Saved
-          </Button>
-          <Button 
-            onClick={() => {
-              const id = Math.random().toString(36).substr(2, 9);
-              setNotifications(prev => [...prev, {
-                id,
-                type: 'info',
-                title: 'Meeting Reminder',
-                message: 'Your team meeting starts in 15 minutes. Click to join the call.',
-                position: 'top-right',
-                animationStyle: 'fade'
-              }]);
-            }}
-          >
-            Meeting Reminder
-          </Button>
-          <Button 
-            onClick={() => {
-              const id = Math.random().toString(36).substr(2, 9);
-              setNotifications(prev => [...prev, {
-                id,
-                type: 'warning',
-                title: 'License Expiring',
-                message: 'Your license will expire in 7 days. Please renew to avoid interruption.',
-                position: 'top-right',
-                animationStyle: 'fade'
-              }]);
-            }}
-          >
-            License Warning
-          </Button>
-        </div>
-      </Subsection>
-
-      {/* Render notifications */}
-      {notifications.map(notification => (
-        <Notification
-          key={notification.id}
-          visible={true}
-          onClose={() => removeNotification(notification.id)}
-          type={notification.type}
-          title={notification.title}
-          message={notification.message}
-          position={notification.position}
-          animationStyle={notification.animationStyle}
-          autoClose
-          autoCloseDelay={5000}
-          actions={notification.type === 'info' && notification.title === 'Meeting Reminder' ? [
-            {
-              label: "Join Now",
-              onClick: () => alert('Joining meeting...'),
-              variant: 'primary'
-            }
-          ] : undefined}
-        />
-      ))}
     </div>
   );
 }
@@ -3134,6 +2938,832 @@ function DropdownShowcase() {
   );
 }
 
+// Design Principles showcase component
+function DesignPrinciplesShowcase() {
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Design Principles</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+          <div className="flex items-start mb-3">
+            <div className="p-2 rounded-md bg-primary/10 mr-3">
+              <FaLayerGroup className="text-primary text-xl" />
+            </div>
+            <div>
+              <Typography variant="subtitle1" className="mb-1">Consistency & Cohesion</Typography>
+              <Typography variant="body2" colorScheme="muted">
+                Our components share a common visual language and behavior patterns, creating a unified and intuitive experience across the entire interface.
+              </Typography>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+          <div className="flex items-start mb-3">
+            <div className="p-2 rounded-md bg-primary/10 mr-3">
+              <FaUniversalAccess className="text-primary text-xl" />
+            </div>
+            <div>
+              <Typography variant="subtitle1" className="mb-1">Accessibility First</Typography>
+              <Typography variant="body2" colorScheme="muted">
+                Every component is designed to meet WCAG 2.1 AA standards with keyboard navigation, screen reader support, and appropriate contrast ratios.
+              </Typography>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+          <div className="flex items-start mb-3">
+            <div className="p-2 rounded-md bg-primary/10 mr-3">
+              <FaFeather className="text-primary text-xl" />
+            </div>
+            <div>
+              <Typography variant="subtitle1" className="mb-1">Purposeful Animation</Typography>
+              <Typography variant="body2" colorScheme="muted">
+                Micro-interactions and animations enhance the user experience by providing feedback, guiding attention, and adding delight without sacrificing performance.
+              </Typography>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+          <div className="flex items-start mb-3">
+            <div className="p-2 rounded-md bg-primary/10 mr-3">
+              <FaCubes className="text-primary text-xl" />
+            </div>
+            <div>
+              <Typography variant="subtitle1" className="mb-1">Composability</Typography>
+              <Typography variant="body2" colorScheme="muted">
+                Components are designed to work together seamlessly while maintaining their individual functionality, enabling complex interfaces to be built from simple building blocks.
+              </Typography>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Subsection title="Core Design Values">
+        <div className="space-y-6">
+          <div className="border-l-4 border-primary pl-4 py-2">
+            <Typography variant="subtitle1" className="mb-1">User-Centered Design</Typography>
+            <Typography variant="body2">
+              We prioritize the needs, expectations, and limitations of end-users throughout the design process, creating interfaces that are intuitive, efficient, and enjoyable to use.
+            </Typography>
+          </div>
+          
+          <div className="border-l-4 border-primary pl-4 py-2">
+            <Typography variant="subtitle1" className="mb-1">Progressive Enhancement</Typography>
+            <Typography variant="body2">
+              Our components work in their basic form first, with enhanced functionality and visual richness added progressively as browser capabilities and user needs require.
+            </Typography>
+          </div>
+          
+          <div className="border-l-4 border-primary pl-4 py-2">
+            <Typography variant="subtitle1" className="mb-1">Responsive & Adaptive</Typography>
+            <Typography variant="body2">
+              Components respond appropriately to different screen sizes, input methods, and user preferences, providing an optimal experience across devices.
+            </Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="Micro-Interaction Principles">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 border border-border rounded-md bg-bg-surface hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">
+            <Typography variant="subtitle2" weight="semibold" className="mb-2">
+              Subtle Feedback
+            </Typography>
+            <Typography variant="body2">
+              Animations provide feedback that's noticeable but not distracting, confirming user actions without disrupting flow.
+            </Typography>
+          </div>
+          <div className="p-4 border border-border rounded-md bg-bg-surface hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">
+            <Typography variant="subtitle2" weight="semibold" className="mb-2">
+              Meaningful Motion
+            </Typography>
+            <Typography variant="body2">
+              Every animation serves a purpose, whether guiding attention, showing relationships, or indicating state changes.
+            </Typography>
+          </div>
+          <div className="p-4 border border-border rounded-md bg-bg-surface hover:shadow-md transition-all duration-300 hover:translate-y-[-2px]">
+            <Typography variant="subtitle2" weight="semibold" className="mb-2">
+              Natural Physics
+            </Typography>
+            <Typography variant="body2">
+              Animations follow natural physics principles with appropriate easing, creating interactions that feel intuitive and lifelike.
+            </Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="Visual Language">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+            <Typography variant="subtitle1" className="mb-2">Color System</Typography>
+            <div className="flex gap-2 flex-wrap mb-3">
+              <div className="p-3 rounded-md bg-primary text-white font-medium">Primary</div>
+              <div className="p-3 rounded-md bg-secondary text-white font-medium">Secondary</div>
+              <div className="p-3 rounded-md bg-success text-white font-medium">Success</div>
+              <div className="p-3 rounded-md bg-error text-white font-medium">Error</div>
+              <div className="p-3 rounded-md bg-warning text-black font-medium">Warning</div>
+            </div>
+            <Typography variant="body2">
+              Our color system is designed for accessibility, meaning, and visual hierarchy, with semantic colors for states and actions.
+            </Typography>
+          </div>
+          
+          <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+            <Typography variant="subtitle1" className="mb-2">Typography</Typography>
+            <div className="space-y-2 mb-3">
+              <Typography variant="h3">Heading</Typography>
+              <Typography variant="body1">Body Text</Typography>
+              <Typography variant="caption">Caption</Typography>
+            </div>
+            <Typography variant="body2">
+              Our type system uses a clear hierarchy, appropriate spacing, and consistent styling to ensure readability and scannability.
+            </Typography>
+          </div>
+          
+          <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+            <Typography variant="subtitle1" className="mb-2">Spacing & Layout</Typography>
+            <div className="flex gap-2 mb-3">
+              <div className="h-8 w-2 bg-primary/20 rounded"></div>
+              <div className="h-8 w-4 bg-primary/30 rounded"></div>
+              <div className="h-8 w-8 bg-primary/40 rounded"></div>
+              <div className="h-8 w-12 bg-primary/50 rounded"></div>
+              <div className="h-8 w-16 bg-primary/60 rounded"></div>
+            </div>
+            <Typography variant="body2">
+              We use a consistent spacing scale and grid system to create balanced, harmonious layouts that guide the eye and create visual rhythm.
+            </Typography>
+          </div>
+          
+          <div className="p-5 border border-border rounded-lg hover:shadow-md transition-shadow">
+            <Typography variant="subtitle1" className="mb-2">Shape & Elevation</Typography>
+            <div className="flex gap-3 mb-3">
+              <div className="h-16 w-16 bg-bg-surface rounded shadow-sm"></div>
+              <div className="h-16 w-16 bg-bg-surface rounded-md shadow"></div>
+              <div className="h-16 w-16 bg-bg-surface rounded-lg shadow-md"></div>
+              <div className="h-16 w-16 bg-bg-surface rounded-xl shadow-lg"></div>
+            </div>
+            <Typography variant="body2">
+              Our component shapes and elevation system creates a sense of depth and hierarchy while maintaining a clean, modern aesthetic.
+            </Typography>
+          </div>
+        </div>
+      </Subsection>
+    </div>
+  );
+}
+
+// Calendar showcase component
+function CalendarShowcase() {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [dateRange, setDateRange] = useState<DateRange>({ startDate: null, endDate: null });
+
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Calendar</h2>
+
+      <Subsection title="Calendar Variants">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex flex-col items-center">
+            <Calendar 
+              variant="filled" 
+              value={selectedDate}
+              onChange={setSelectedDate}
+              animationStyle="fade"
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">Filled Variant</Typography>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <Calendar 
+              variant="outlined" 
+              value={selectedDate}
+              onChange={setSelectedDate}
+              animationStyle="slide"
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">Outlined Variant</Typography>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <Calendar 
+              variant="minimal" 
+              value={selectedDate}
+              onChange={setSelectedDate}
+              animationStyle="zoom"
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">Minimal Variant</Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="Calendar Sizes">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex flex-col items-center">
+            <Calendar 
+              size="sm" 
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">Small Size</Typography>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <Calendar 
+              size="md" 
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">Medium Size</Typography>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <Calendar 
+              size="lg" 
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">Large Size</Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="Range Selection">
+        <div className="flex flex-col items-center">
+          <div className="max-w-lg">
+            <Typography variant="body2" className="mb-4 text-text-muted">
+              Click to select a start date, then click again to select an end date. The dates in between will be highlighted.
+            </Typography>
+            
+            <Calendar 
+              selectionMode="range"
+              dateRange={dateRange}
+              onRangeChange={(range: DateRange) => setDateRange(range)}
+              colorScheme="primary"
+              size="lg"
+            />
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="Date Constraints">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-col items-center">
+            <Calendar 
+              minDate={new Date(new Date().setDate(new Date().getDate() - 5))}
+              maxDate={new Date(new Date().setDate(new Date().getDate() + 5))}
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">
+              Min & Max Date Constraints
+            </Typography>
+            <Typography variant="caption" className="text-text-muted">
+              Only allows selecting dates within 5 days before and after today
+            </Typography>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <Calendar 
+              disabledDates={[
+                new Date(new Date().setDate(new Date().getDate() + 2)),
+                new Date(new Date().setDate(new Date().getDate() + 4)),
+                new Date(new Date().setDate(new Date().getDate() + 6))
+              ]}
+              value={selectedDate}
+              onChange={setSelectedDate}
+              isDateHighlighted={(date: Date) => {
+                // Highlight weekends
+                return date.getDay() === 0 || date.getDay() === 6;
+              }}
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">
+              Disabled & Highlighted Dates
+            </Typography>
+            <Typography variant="caption" className="text-text-muted">
+              Some dates are disabled, and weekends are highlighted
+            </Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="Customization Options">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex flex-col items-center">
+            <Calendar 
+              showOutsideDays={false}
+              headerFormat="MMM yyyy"
+              firstDayOfWeek={1} // Monday
+              value={selectedDate}
+              onChange={setSelectedDate}
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">
+              Hidden Outside Days, Custom Header & Monday Start
+            </Typography>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <Calendar 
+              showHeader={false}
+              showFooter={false}
+              value={selectedDate}
+              onChange={setSelectedDate}
+              colorScheme="secondary"
+            />
+            <Typography variant="body2" className="mt-2 text-text-muted">
+              No Header/Footer & Secondary Color
+            </Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <div className="mt-8 p-4 bg-primary/10 rounded-md">
+        <Typography variant="subtitle2" weight="medium" className="mb-2">Key Features</Typography>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border border-border/50 rounded p-3 bg-bg-surface">
+            <Typography variant="body2" weight="medium" className="mb-1">
+              <FaCalendarAlt className="inline-block mr-1 text-primary" /> Range Selection
+            </Typography>
+            <Typography variant="caption">
+              Support for selecting date ranges with intuitive highlighting and interactions
+            </Typography>
+          </div>
+          
+          <div className="border border-border/50 rounded p-3 bg-bg-surface">
+            <Typography variant="body2" weight="medium" className="mb-1">
+              <FaCheck className="inline-block mr-1 text-primary" /> Constraints & Validation
+            </Typography>
+            <Typography variant="caption">
+              Set min/max dates, disable specific dates, or implement custom validation rules
+            </Typography>
+          </div>
+          
+          <div className="border border-border/50 rounded p-3 bg-bg-surface">
+            <Typography variant="body2" weight="medium" className="mb-1">
+              <FaFeather className="inline-block mr-1 text-primary" /> Smooth Animations
+            </Typography>
+            <Typography variant="caption">
+              Multiple animation styles provide visual feedback and enhance the user experience
+            </Typography>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Toast showcase component
+function ToastShowcase() {
+  const { addToast, removeAllToasts, updateToast } = useToast();
+  const [position, setPosition] = useState<ToastPosition>('top-right');
+  const [animationStyle, setAnimationStyle] = useState<ToastAnimationStyle>('slide');
+  
+  const showToast = (type: ToastType, title?: string) => {
+    const toastTitles = {
+      success: 'Success',
+      error: 'Error',
+      warning: 'Warning',
+      info: 'Information',
+      default: 'Notification'
+    };
+    
+    const toastMessages = {
+      success: 'Operation completed successfully.',
+      error: 'An error occurred while processing your request.',
+      warning: 'Please review the information before proceeding.',
+      info: 'Here is some helpful information for you.',
+      default: 'This is a generic notification.'
+    };
+    
+    addToast({
+      type,
+      title: title || toastTitles[type],
+      message: toastMessages[type],
+      position,
+      animationStyle,
+      duration: 5000
+    });
+  };
+
+  // Function to demonstrate toast for loading operations
+  const showLoadingToast = () => {
+    const toastId = addToast({
+      type: 'info',
+      title: 'Loading',
+      message: 'Please wait while we process your request...',
+      position,
+      animationStyle,
+      duration: Infinity // Won't auto-close
+    });
+
+    // Simulate an API call
+    setTimeout(() => {
+      // Update the toast with success message
+      updateToast(toastId, {
+        type: 'success',
+        title: 'Success',
+        message: 'Your data has been successfully loaded!',
+        duration: 3000 // Will auto-close after 3s
+      });
+    }, 2000);
+  };
+
+  // Function to demonstrate a toast with actions
+  const showActionToast = () => {
+    addToast({
+      type: 'warning',
+      title: 'Unsaved Changes',
+      message: 'You have unsaved changes. Would you like to save them?',
+      position,
+      animationStyle,
+      duration: 10000,
+      onClose: () => console.log('Toast closed')
+    });
+  };
+
+  // Function to demonstrate a multi-step process with toasts
+  const showMultiStepToast = () => {
+    const steps = [
+      { type: 'info', title: 'Step 1', message: 'Starting the process...' },
+      { type: 'info', title: 'Step 2', message: 'Processing data...' },
+      { type: 'info', title: 'Step 3', message: 'Finalizing...' },
+      { type: 'success', title: 'Complete', message: 'All steps completed successfully!' }
+    ];
+
+    steps.forEach((step, index) => {
+      setTimeout(() => {
+        addToast({
+          type: step.type as ToastType,
+          title: step.title,
+          message: step.message,
+          position,
+          animationStyle,
+          duration: index === steps.length - 1 ? 5000 : 2000
+        });
+      }, index * 1500);
+    });
+  };
+  
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Toast Notifications</h2>
+      
+      <Subsection title="Toast Types">
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => showToast('success')} variant="primary" leftIcon={FaCheck}>
+            Success
+          </Button>
+          <Button onClick={() => showToast('error')} variant="danger" leftIcon={FaTimes}>
+            Error
+          </Button>
+          <Button onClick={() => showToast('warning')} leftIcon={FaExclamationTriangle}>
+            Warning
+          </Button>
+          <Button onClick={() => showToast('info')} variant="outline" leftIcon={FaInfo}>
+            Info
+          </Button>
+          <Button onClick={() => showToast('default')} variant="ghost" leftIcon={FaBell}>
+            Default
+          </Button>
+        </div>
+      </Subsection>
+      
+      <Subsection title="Toast Positions">
+        <div className="mb-4">
+          <Typography variant="body2" className="mb-2">
+            Select a position for the toast:
+          </Typography>
+          <div className="flex flex-wrap gap-3">
+            {(['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center'] as ToastPosition[]).map(pos => (
+              <Button
+                key={pos}
+                variant={position === pos ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setPosition(pos)}
+              >
+                {pos.replace('-', ' ')}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        <Button 
+          onClick={() => showToast('info', `Position: ${position}`)} 
+          leftIcon={FaInfo}
+        >
+          Show Toast at {position.replace('-', ' ')}
+        </Button>
+      </Subsection>
+      
+      <Subsection title="Animation Styles">
+        <div className="mb-4">
+          <Typography variant="body2" className="mb-2">
+            Select an animation style:
+          </Typography>
+          <div className="flex flex-wrap gap-3">
+            {(['fade', 'slide', 'zoom', 'flip'] as ToastAnimationStyle[]).map(style => (
+              <Button
+                key={style}
+                variant={animationStyle === style ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setAnimationStyle(style)}
+              >
+                {style}
+              </Button>
+            ))}
+          </div>
+        </div>
+        
+        <Button 
+          onClick={() => showToast('info', `Animation: ${animationStyle}`)} 
+          leftIcon={FaInfo}
+        >
+          Show Toast with {animationStyle} animation
+        </Button>
+      </Subsection>
+      
+      <Subsection title="Advanced Use Cases">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 border border-border rounded-md">
+            <Typography variant="subtitle2" weight="medium" className="mb-2">Loading State</Typography>
+            <Typography variant="body2" className="mb-3">
+              Show a loading toast that updates on completion
+            </Typography>
+            <Button onClick={showLoadingToast} variant="primary" leftIcon={FaSpinner}>
+              Start Loading
+            </Button>
+          </div>
+          
+          <div className="p-4 border border-border rounded-md">
+            <Typography variant="subtitle2" weight="medium" className="mb-2">Action Notification</Typography>
+            <Typography variant="body2" className="mb-3">
+              Show a toast for user decisions with a longer timeout
+            </Typography>
+            <Button onClick={showActionToast} variant="primary" leftIcon={FaExclamationTriangle}>
+              Show Action Toast
+            </Button>
+          </div>
+          
+          <div className="p-4 border border-border rounded-md">
+            <Typography variant="subtitle2" weight="medium" className="mb-2">Multi-step Process</Typography>
+            <Typography variant="body2" className="mb-3">
+              Show a sequence of toasts representing process steps
+            </Typography>
+            <Button onClick={showMultiStepToast} variant="primary" leftIcon={FaList}>
+              Start Process
+            </Button>
+          </div>
+          
+          <div className="p-4 border border-border rounded-md">
+            <Typography variant="subtitle2" weight="medium" className="mb-2">Multiple Toasts</Typography>
+            <Typography variant="body2" className="mb-3">
+              Show multiple toasts of different types
+            </Typography>
+            <Button 
+              onClick={() => {
+                ['success', 'info', 'warning', 'error', 'default'].forEach((type, index) => {
+                  setTimeout(() => {
+                    showToast(type as ToastType, `Toast ${index + 1}`);
+                  }, index * 300);
+                });
+              }} 
+              variant="primary"
+              leftIcon={FaLayerGroup}
+            >
+              Show Multiple Toasts
+            </Button>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="Toast Management">
+        <div className="flex flex-wrap gap-3">
+          <Button 
+            onClick={removeAllToasts} 
+            variant="outline"
+            leftIcon={FaTimes}
+          >
+            Clear All Toasts
+          </Button>
+        </div>
+      </Subsection>
+      
+      <div className="mt-6 p-4 bg-primary/10 rounded-md">
+        <Typography variant="subtitle2" weight="medium" className="mb-2">Toast Best Practices</Typography>
+        <Typography variant="body2">
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Use toast notifications for non-critical information or feedback</li>
+            <li>Keep messages short and actionable</li>
+            <li>Use appropriate types: success for confirmations, error for failures, etc.</li>
+            <li>Choose positions based on importance: top positions are more prominent</li>
+            <li>Don't overwhelm users with too many notifications at once</li>
+            <li>Use loading toasts for operations that take time, then update with results</li>
+          </ul>
+        </Typography>
+      </div>
+    </div>
+  );
+}
+
+// DatePicker showcase component
+function DatePickerShowcase() {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [dateRange, setDateRange] = useState<DateRange>({ startDate: new Date(), endDate: null });
+  
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">DatePicker</h2>
+
+      <Subsection title="Basic DatePicker">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl">
+          <div>
+            <DatePicker
+              label="Select a date"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              helperText="Click to open the calendar"
+            />
+            <div className="mt-2">
+              <Typography variant="body2" colorScheme="muted">
+                Selected date: {selectedDate ? selectedDate.toLocaleDateString() : 'None'}
+              </Typography>
+            </div>
+          </div>
+          
+          <div>
+            <DatePicker
+              label="Date with custom format"
+              value={selectedDate}
+              onChange={setSelectedDate}
+              displayFormat="MM/dd/yyyy"
+              valueFormat="MM/dd/yyyy"
+              helperText="Displayed in MM/DD/YYYY format"
+            />
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="DatePicker Variants">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+          <DatePicker
+            label="Outlined Variant"
+            variant="outlined"
+            placeholder="Select date"
+          />
+          
+          <DatePicker
+            label="Filled Variant"
+            variant="filled"
+            placeholder="Select date"
+          />
+          
+          <DatePicker
+            label="Underlined Variant"
+            variant="underlined"
+            placeholder="Select date"
+          />
+        </div>
+      </Subsection>
+
+      <Subsection title="DatePicker Sizes">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+          <DatePicker
+            label="Small Size"
+            size="sm"
+            calendarSize="sm"
+            placeholder="Select date"
+          />
+          
+          <DatePicker
+            label="Medium Size"
+            size="md"
+            calendarSize="md"
+            placeholder="Select date"
+          />
+          
+          <DatePicker
+            label="Large Size"
+            size="lg"
+            calendarSize="lg"
+            placeholder="Select date"
+          />
+        </div>
+      </Subsection>
+
+      <Subsection title="Range DatePicker">
+        <div className="max-w-xl">
+          <DatePicker
+            label="Select date range"
+            isRangePicker
+            dateRange={dateRange}
+            onRangeChange={setDateRange}
+            helperText="Select a start and end date"
+          />
+          <div className="mt-2">
+            <Typography variant="body2" colorScheme="muted">
+              Selected range: {dateRange.startDate ? dateRange.startDate.toLocaleDateString() : 'None'} 
+              {' to '} 
+              {dateRange.endDate ? dateRange.endDate.toLocaleDateString() : 'None'}
+            </Typography>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection title="With Constraints">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl">
+          <DatePicker
+            label="With Min/Max Date"
+            minDate={new Date(new Date().setDate(new Date().getDate() - 5))}
+            maxDate={new Date(new Date().setDate(new Date().getDate() + 10))}
+            helperText="Only dates within ±5 days from today are allowed"
+          />
+          
+          <DatePicker
+            label="Weekend Days Disabled"
+            disabledDates={(date) => {
+              const day = date.getDay();
+              return day === 0 || day === 6; // Disable weekends
+            }}
+            helperText="Weekends are disabled"
+          />
+        </div>
+      </Subsection>
+
+      <Subsection title="Placement Options">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl">
+          <DatePicker
+            label="Top Start Placement"
+            placement="top-start"
+            helperText="Calendar opens above the input, aligned to the left"
+          />
+          
+          <DatePicker
+            label="Bottom End Placement"
+            placement="bottom-end"
+            helperText="Calendar opens below the input, aligned to the right"
+          />
+        </div>
+      </Subsection>
+
+      <Subsection title="Animation Styles">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+          <DatePicker
+            label="Fade Animation"
+            animationStyle="fade"
+            helperText="Calendar fades in/out"
+          />
+          
+          <DatePicker
+            label="Slide Animation"
+            animationStyle="slide"
+            helperText="Calendar slides in/out"
+          />
+          
+          <DatePicker
+            label="Zoom Animation"
+            animationStyle="zoom"
+            helperText="Calendar zooms in/out"
+          />
+        </div>
+      </Subsection>
+
+      <div className="mt-8 p-4 bg-primary/10 rounded-md">
+        <Typography variant="subtitle2" weight="medium" className="mb-2">Key Features</Typography>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border border-border/50 rounded p-3 bg-bg-surface">
+            <Typography variant="body2" weight="medium" className="mb-1">
+              <FaCalendarAlt className="inline-block mr-1 text-primary" /> Date Selection
+            </Typography>
+            <Typography variant="caption">
+              Select dates via text input or interactive calendar popup
+            </Typography>
+          </div>
+          
+          <div className="border border-border/50 rounded p-3 bg-bg-surface">
+            <Typography variant="body2" weight="medium" className="mb-1">
+              <FaCheck className="inline-block mr-1 text-primary" /> Range Selection
+            </Typography>
+            <Typography variant="caption">
+              Select date ranges with start and end dates for period selections
+            </Typography>
+          </div>
+          
+          <div className="border border-border/50 rounded p-3 bg-bg-surface">
+            <Typography variant="body2" weight="medium" className="mb-1">
+              <FaFeather className="inline-block mr-1 text-primary" /> Format Flexibility
+            </Typography>
+            <Typography variant="caption">
+              Customizable date formats for display and storage needs
+            </Typography>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main component showcase page
 const ComponentShowcasePage: React.FC = () => {
   const [activeComponent, setActiveComponent] = useState('Button');
@@ -3142,36 +3772,38 @@ const ComponentShowcasePage: React.FC = () => {
   const currentComponent = componentRegistry.find(c => c.name === activeComponent) || componentRegistry[0];
 
   return (
-    <div className="min-h-screen bg-bg-base text-text-base p-4 md:p-8 transition-colors duration-300">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold text-primary">Component Showcase</h1>
-        <ThemeToggleButton />
-      </header>
+    <ToastProvider defaultPosition="bottom-right">
+      <div className="min-h-screen bg-bg-base text-text-base p-4 md:p-8 transition-colors duration-300">
+        <header className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold text-primary">Component Showcase</h1>
+          <ThemeToggleButton />
+        </header>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar navigation */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <ComponentNav 
-            components={componentRegistry}
-            activeComponent={activeComponent}
-            onSelectComponent={setActiveComponent}
-          />
-        </div>
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar navigation */}
+          <div className="w-full md:w-64 flex-shrink-0">
+            <ComponentNav 
+              components={componentRegistry}
+              activeComponent={activeComponent}
+              onSelectComponent={setActiveComponent}
+            />
+          </div>
 
-        {/* Main content area */}
-        <main className="flex-grow">
-          <Section title={currentComponent.name}>
-            <div className="mb-4">
-              <p className="text-text-muted">{currentComponent.description}</p>
-              <div className="mt-1 text-sm text-text-muted">
-                Category: <span className="text-primary capitalize">{currentComponent.category}</span>
+          {/* Main content area */}
+          <main className="flex-grow">
+            <Section title={currentComponent.name}>
+              <div className="mb-4">
+                <p className="text-text-muted">{currentComponent.description}</p>
+                <div className="mt-1 text-sm text-text-muted">
+                  Category: <span className="text-primary capitalize">{currentComponent.category}</span>
+                </div>
               </div>
-            </div>
-            <currentComponent.component />
-          </Section>
-        </main>
+              <currentComponent.component />
+            </Section>
+          </main>
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 };
 
