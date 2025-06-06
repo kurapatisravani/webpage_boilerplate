@@ -1,5 +1,5 @@
 // src/pages/ComponentShowcasePage.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   FaHeart, FaArrowRight, FaCheck, FaStar, FaDownload, 
   FaTimes, FaSearch, FaSun, FaMoon, 
@@ -7,7 +7,8 @@ import {
   FaInfo, FaEnvelope, FaUser, FaLock, FaSpinner, FaBell,
   FaFeather, FaRocket, FaHome, FaList, FaShieldAlt, FaMagic,
   FaGift, FaLink, FaFileAlt, FaCode, FaBook, FaCalendar, FaCog, FaGlobe,
-  FaBoxOpen, FaLayerGroup, FaPalette, FaUniversalAccess, FaCubes, FaCircle
+  FaBoxOpen, FaLayerGroup, FaPalette, FaUniversalAccess, FaCubes, FaCircle,
+  FaSave, FaPlus, FaTrash, FaEdit, FaRegStar
 } from 'react-icons/fa';
 
 import { Button } from '../components/atoms/Button/Button';
@@ -18,7 +19,7 @@ import { Tabs } from '../components/molecules/Tabs/Tabs';
 import { Card } from '../components/molecules/Card/Card';
 import { Tooltip } from '../components/molecules/Tooltip/Tooltip';
 import { Modal } from '../components/organisms/Modal/Modal';
-import { Badge } from '../components/atoms/Badge/Badge';
+import { Badge, type BadgeColorScheme } from '../components/atoms/Badge/Badge';
 import { Checkbox } from '../components/atoms/Checkbox/Checkbox';
 import { Radio } from '../components/atoms/Radio/Radio';
 import { Switch } from '../components/atoms/Switch';
@@ -34,6 +35,12 @@ import { ToastProvider, useToast } from '../components/molecules/Toast';
 import type { ToastType, ToastPosition, ToastAnimationStyle } from '../components/molecules/Toast';
 import { motion } from 'framer-motion';
 import { Avatar } from '../components/atoms/Avatar/Avatar';
+import { Drawer } from '../components/organisms/Drawer/Drawer';
+import { Form } from '../components/organisms/Form/Form';
+import { DataGrid } from '../components/organisms/DataGrid/DataGrid';
+import { Select } from '../components/atoms/Select';
+import { Textarea } from '../components/atoms/Textarea';
+import { Carousel } from '../components/organisms/Carousel';
 
 // Type definitions
 type ComponentCategory = 'atoms' | 'molecules' | 'organisms' | 'templates' | 'pages';
@@ -209,8 +216,8 @@ const componentRegistry: ComponentType[] = [
     name: 'Drawer',
     category: 'organisms',
     description: 'Side panel that slides in from the edge of the screen for navigation or information',
-    component: PlaceholderShowcase,
-    implemented: false
+    component: DrawerShowcase,
+    implemented: true
   },
   {
     name: 'Colors & Themes',
@@ -239,7 +246,28 @@ const componentRegistry: ComponentType[] = [
     description: 'Date input with calendar popup for easy date selection',
     component: DatePickerShowcase,
     implemented: true
-  }
+  },
+  {
+    name: 'Form',
+    category: 'organisms',
+    description: 'Component for handling user input with validation and submission',
+    component: FormShowcase,
+    implemented: true
+  },
+  {
+    name: 'DataGrid',
+    category: 'organisms',
+    description: 'Advanced data table with sorting, filtering, and pagination capabilities',
+    component: DataGridShowcase,
+    implemented: true
+  },
+  {
+    name: 'Carousel',
+    category: 'organisms',
+    description: 'Slideshow component for cycling through elements with navigation and autoplay',
+    component: CarouselShowcase,
+    implemented: true
+  },
 ];
 
 // Navigation sidebar for component selection
@@ -3880,6 +3908,1020 @@ function AvatarShowcase() {
             border="thin" 
             size="lg" 
           />
+        </div>
+      </Subsection>
+    </div>
+  );
+}
+
+// Drawer showcase component
+function DrawerShowcase() {
+  const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false);
+  const [isLeftDrawerOpen, setIsLeftDrawerOpen] = useState(false);
+  const [isTopDrawerOpen, setIsTopDrawerOpen] = useState(false);
+  const [isBottomDrawerOpen, setIsBottomDrawerOpen] = useState(false);
+  const [isNestedDrawerOpen, setIsNestedDrawerOpen] = useState(false);
+  const [isCustomDrawerOpen, setIsCustomDrawerOpen] = useState(false);
+  const [customDrawerProps, setCustomDrawerProps] = useState({
+    position: 'right' as 'left' | 'right' | 'top' | 'bottom',
+    size: 'md' as 'sm' | 'md' | 'lg' | 'xl' | 'full',
+    hasOverlay: true,
+    showCloseButton: true,
+    title: 'Custom Drawer'
+  });
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Drawer</h2>
+      
+      <Subsection title="Drawer Positions">
+        <div className="flex flex-wrap gap-4">
+          <Button 
+            variant="primary"
+            onClick={() => setIsRightDrawerOpen(true)}
+          >
+            Right Drawer
+          </Button>
+          
+          <Button 
+            variant="secondary"
+            onClick={() => setIsLeftDrawerOpen(true)}
+          >
+            Left Drawer
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={() => setIsTopDrawerOpen(true)}
+          >
+            Top Drawer
+          </Button>
+          
+          <Button 
+            variant="ghost"
+            onClick={() => setIsBottomDrawerOpen(true)}
+          >
+            Bottom Drawer
+          </Button>
+        </div>
+        
+        {/* Right Drawer */}
+        <Drawer 
+          isOpen={isRightDrawerOpen}
+          onClose={() => setIsRightDrawerOpen(false)}
+          position="right"
+          title="Right Drawer"
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-text">
+              This is a drawer that slides in from the right side of the screen.
+              It can be used for navigation, filters, forms, or any contextual information.
+            </p>
+            <Button onClick={() => setIsRightDrawerOpen(false)}>
+              Close Drawer
+            </Button>
+          </div>
+        </Drawer>
+        
+        {/* Left Drawer */}
+        <Drawer 
+          isOpen={isLeftDrawerOpen}
+          onClose={() => setIsLeftDrawerOpen(false)}
+          position="left"
+          title="Left Drawer"
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-text">
+              This is a drawer that slides in from the left side of the screen.
+              Left drawers are commonly used for navigation menus.
+            </p>
+            <Button onClick={() => setIsLeftDrawerOpen(false)}>
+              Close Drawer
+            </Button>
+          </div>
+        </Drawer>
+        
+        {/* Top Drawer */}
+        <Drawer 
+          isOpen={isTopDrawerOpen}
+          onClose={() => setIsTopDrawerOpen(false)}
+          position="top"
+          title="Top Drawer"
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-text">
+              This is a drawer that slides in from the top of the screen.
+              Top drawers can be used for notifications, alerts, or global actions.
+            </p>
+            <Button onClick={() => setIsTopDrawerOpen(false)}>
+              Close Drawer
+            </Button>
+          </div>
+        </Drawer>
+        
+        {/* Bottom Drawer */}
+        <Drawer 
+          isOpen={isBottomDrawerOpen}
+          onClose={() => setIsBottomDrawerOpen(false)}
+          position="bottom"
+          title="Bottom Drawer"
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-text">
+              This is a drawer that slides in from the bottom of the screen.
+              Bottom drawers are great for mobile interfaces or additional options.
+            </p>
+            <Button onClick={() => setIsBottomDrawerOpen(false)}>
+              Close Drawer
+            </Button>
+          </div>
+        </Drawer>
+      </Subsection>
+      
+      <Subsection title="Drawer Sizes">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {['sm', 'md', 'lg', 'xl', 'full'].map((drawerSize) => (
+            <Button 
+              key={drawerSize}
+              variant="outline"
+              onClick={() => {
+                setIsCustomDrawerOpen(true);
+                setCustomDrawerProps(prev => ({ ...prev, size: drawerSize as 'sm' | 'md' | 'lg' | 'xl' | 'full' }));
+              }}
+            >
+              {drawerSize.toUpperCase()} Size
+            </Button>
+          ))}
+        </div>
+      </Subsection>
+      
+      <Subsection title="Advanced Usage">
+        <div className="flex flex-wrap gap-4">
+          <Button 
+            variant="primary"
+            onClick={() => {
+              setIsCustomDrawerOpen(true);
+              setCustomDrawerProps(prev => ({
+                ...prev,
+                position: 'right',
+                size: 'lg',
+                hasOverlay: false,
+                title: 'No Overlay Drawer'
+              }));
+            }}
+          >
+            No Overlay
+          </Button>
+          
+          <Button 
+            variant="primary"
+            onClick={() => {
+              setIsCustomDrawerOpen(true);
+              setCustomDrawerProps(prev => ({
+                ...prev,
+                position: 'right',
+                size: 'lg',
+                showCloseButton: false,
+                title: 'No Close Button'
+              }));
+            }}
+          >
+            No Close Button
+          </Button>
+          
+          <Button 
+            variant="primary"
+            onClick={() => {
+              setIsCustomDrawerOpen(true);
+              setCustomDrawerProps(prev => ({
+                ...prev,
+                position: 'right',
+                size: 'lg',
+                title: '',
+                showCloseButton: false
+              }));
+            }}
+          >
+            No Header
+          </Button>
+          
+          <Button 
+            variant="secondary"
+            onClick={() => {
+              setIsRightDrawerOpen(true);
+              setTimeout(() => setIsNestedDrawerOpen(true), 500);
+            }}
+          >
+            Nested Drawer
+          </Button>
+        </div>
+        
+        {/* Custom Drawer */}
+        <Drawer 
+          isOpen={isCustomDrawerOpen}
+          onClose={() => setIsCustomDrawerOpen(false)}
+          {...customDrawerProps}
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-text">
+              This is a customized drawer with special properties.
+            </p>
+            <pre className="bg-bg-muted p-4 rounded-lg text-sm overflow-x-auto">
+              <code>{JSON.stringify(customDrawerProps, null, 2)}</code>
+            </pre>
+            <Button onClick={() => setIsCustomDrawerOpen(false)}>
+              Close Drawer
+            </Button>
+          </div>
+        </Drawer>
+        
+        {/* Nested Drawer */}
+        <Drawer 
+          isOpen={isNestedDrawerOpen}
+          onClose={() => setIsNestedDrawerOpen(false)}
+          position="left"
+          size="md"
+          title="Nested Drawer"
+          isNested={true}
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-text">
+              This is a nested drawer that appears on top of another drawer.
+              Nested drawers are useful for complex navigation or workflows.
+            </p>
+            <Button onClick={() => setIsNestedDrawerOpen(false)}>
+              Close Nested Drawer
+            </Button>
+          </div>
+        </Drawer>
+      </Subsection>
+      
+      <Subsection title="Use Cases">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Navigation Menu</h3>
+            <p className="text-text-muted mb-4">
+              Use a left drawer to provide site navigation, especially on mobile devices.
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setIsCustomDrawerOpen(true);
+                setCustomDrawerProps(prev => ({
+                  ...prev,
+                  position: 'left',
+                  size: 'md',
+                  title: 'Navigation Menu'
+                }));
+              }}
+            >
+              View Example
+            </Button>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Filter Panel</h3>
+            <p className="text-text-muted mb-4">
+              Use a right drawer to display filters for a data table or search results.
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setIsCustomDrawerOpen(true);
+                setCustomDrawerProps(prev => ({
+                  ...prev,
+                  position: 'right',
+                  size: 'md',
+                  title: 'Filters'
+                }));
+              }}
+            >
+              View Example
+            </Button>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Form Input</h3>
+            <p className="text-text-muted mb-4">
+              Use a drawer to display a form for creating or editing an item.
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setIsCustomDrawerOpen(true);
+                setCustomDrawerProps(prev => ({
+                  ...prev,
+                  position: 'right',
+                  size: 'lg',
+                  title: 'Edit Profile'
+                }));
+              }}
+            >
+              View Example
+            </Button>
+          </Card>
+        </div>
+      </Subsection>
+    </div>
+  );
+  
+  
+}
+
+// Form showcase component
+function FormShowcase() {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    bio: '',
+    terms: false,
+    notifications: false,
+    preferredContact: 'email'
+  });
+  
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const isCheckbox = type === 'checkbox';
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: isCheckbox ? (e.target as HTMLInputElement).checked : value
+    }));
+    
+    // Clear error when field is modified
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+  
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validate name
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+    }
+    
+    // Validate email
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    // Validate password
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+    
+    // Validate confirm password
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    // Validate terms
+    if (!formData.terms) {
+      newErrors.terms = 'You must accept the terms';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      // Form is valid
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+      
+      // In a real application, you would submit the form data here
+      console.log('Form submitted:', formData);
+    }
+  };
+  
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Form Component</h2>
+      
+      <Subsection title="Registration Form Example">
+        <div className="w-full max-w-2xl mx-auto">
+          {submitted ? (
+            <div className="bg-success/10 border border-success rounded-md p-4 mb-6 text-success">
+              <h3 className="font-medium text-lg mb-2 flex items-center">
+                <FaCheck className="mr-2" /> Form Submitted Successfully
+              </h3>
+              <p>Thank you for your submission. Your data has been received.</p>
+            </div>
+          ) : null}
+          
+          <form 
+            onSubmit={handleSubmit} 
+            className="space-y-6 bg-bg-surface p-6 rounded-lg border border-border"
+            noValidate
+          >
+            <Typography variant="h3" className="mb-6">Create an Account</Typography>
+            
+            <div className="space-y-4">
+              <div>
+                <Input
+                  label="Full Name"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
+                  leftIcon={<FaUser />}
+                  required
+                  fullWidth
+                  validationState={errors.fullName ? 'error' : 'default'}
+                  helperText={errors.fullName || 'Enter your first and last name'}
+                />
+              </div>
+              
+              <div>
+                <Input
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email address"
+                  leftIcon={<FaEnvelope />}
+                  required
+                  fullWidth
+                  validationState={errors.email ? 'error' : 'default'}
+                  helperText={errors.email || 'We\'ll never share your email'}
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Input
+                    label="Password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Create a password"
+                    leftIcon={<FaLock />}
+                    required
+                    fullWidth
+                    revealPassword
+                    validationState={errors.password ? 'error' : 'default'}
+                    helperText={errors.password || 'At least 8 characters'}
+                  />
+                </div>
+                
+                <div>
+                  <Input
+                    label="Confirm Password"
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Confirm your password"
+                    leftIcon={<FaLock />}
+                    required
+                    fullWidth
+                    revealPassword
+                    validationState={errors.confirmPassword ? 'error' : 'default'}
+                    helperText={errors.confirmPassword || 'Re-enter your password'}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block mb-2 font-medium text-text">Bio</label>
+                <Textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  placeholder="Tell us about yourself (optional)"
+                  rows={6}
+                  fullWidth
+                />
+              </div>
+              
+              <div>
+                <label className="block mb-2 font-medium text-text">Preferred Contact Method</label>
+                <Select
+                  name="preferredContact"
+                  value={formData.preferredContact}
+                  onChange={handleChange}
+                  options={[
+                    { label: 'Email', value: 'email' },
+                    { label: 'Phone', value: 'phone' },
+                    { label: 'Text Message', value: 'text' }
+                  ]}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Checkbox
+                    name="terms"
+                    checked={formData.terms}
+                    onChange={handleChange as any}
+                    id="terms"
+                  />
+                  <label htmlFor="terms" className="ml-2 text-text">
+                    I agree to the <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+                  </label>
+                </div>
+                {errors.terms && <p className="text-error text-sm">{errors.terms}</p>}
+                
+                <div className="flex items-center">
+                  <Checkbox
+                    name="notifications"
+                    checked={formData.notifications}
+                    onChange={handleChange as any}
+                    id="notifications"
+                  />
+                  <label htmlFor="notifications" className="ml-2 text-text">
+                    Send me promotional emails
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+                          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-border">
+                <Button variant="ghost" type="button">Cancel</Button>
+                <Button variant="primary" type="submit" leftIcon={FaUser}>Create Account</Button>
+              </div>
+          </form>
+        </div>
+      </Subsection>
+      
+      <Subsection title="Form Variations">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Login Form</h3>
+            <form className="space-y-4 pt-2">
+              <Input
+                label="Username"
+                placeholder="Enter your username"
+                leftIcon={<FaUser />}
+              />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                leftIcon={<FaLock />}
+                revealPassword
+              />
+              <div className="flex items-center">
+                <Checkbox id="remember-me" />
+                <label htmlFor="remember-me" className="ml-2 text-sm">Remember me</label>
+              </div>
+              <Button variant="primary" className="w-full">Log In</Button>
+            </form>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Contact Form</h3>
+            <form className="space-y-4 pt-2">
+              <Input
+                label="Name"
+                placeholder="Your name"
+              />
+              <Input
+                label="Email"
+                type="email"
+                placeholder="Your email"
+              />
+              <div>
+                <label className="block mb-2 font-medium text-text-secondary text-sm">Message</label>
+                <Textarea
+                  placeholder="Your message"
+                  rows={6}
+                  fullWidth
+                />
+              </div>
+              <Button variant="primary">Send Message</Button>
+            </form>
+          </Card>
+        </div>
+      </Subsection>
+    </div>
+  );
+}
+
+// DataGrid showcase component
+function DataGridShowcase() {
+  // Sample data for the grid
+  const userData = [
+    { id: 1, firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', role: 'Admin', status: 'Active', lastLogin: '2023-06-15' },
+    { id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@example.com', role: 'User', status: 'Active', lastLogin: '2023-06-14' },
+    { id: 3, firstName: 'Robert', lastName: 'Johnson', email: 'robert.j@example.com', role: 'User', status: 'Inactive', lastLogin: '2023-05-20' },
+    { id: 4, firstName: 'Emily', lastName: 'Davis', email: 'emily.d@example.com', role: 'Editor', status: 'Active', lastLogin: '2023-06-12' },
+    { id: 5, firstName: 'Michael', lastName: 'Brown', email: 'michael.b@example.com', role: 'User', status: 'Pending', lastLogin: '2023-06-10' },
+    { id: 6, firstName: 'Sarah', lastName: 'Wilson', email: 'sarah.w@example.com', role: 'Admin', status: 'Active', lastLogin: '2023-06-16' },
+    { id: 7, firstName: 'David', lastName: 'Miller', email: 'david.m@example.com', role: 'User', status: 'Active', lastLogin: '2023-06-13' },
+    { id: 8, firstName: 'Emma', lastName: 'Taylor', email: 'emma.t@example.com', role: 'Editor', status: 'Inactive', lastLogin: '2023-05-28' },
+    { id: 9, firstName: 'James', lastName: 'Anderson', email: 'james.a@example.com', role: 'User', status: 'Active', lastLogin: '2023-06-11' },
+    { id: 10, firstName: 'Olivia', lastName: 'Thomas', email: 'olivia.t@example.com', role: 'User', status: 'Pending', lastLogin: '2023-06-09' },
+    { id: 11, firstName: 'William', lastName: 'Jackson', email: 'william.j@example.com', role: 'Admin', status: 'Active', lastLogin: '2023-06-17' },
+    { id: 12, firstName: 'Sophia', lastName: 'White', email: 'sophia.w@example.com', role: 'User', status: 'Active', lastLogin: '2023-06-14' },
+  ];
+  
+  // Define columns for the DataGrid
+  const columns = [
+    {
+      id: 'id',
+      header: 'ID',
+      cell: (row: any) => row.id,
+      sortable: true,
+    },
+    {
+      id: 'firstName',
+      header: 'First Name',
+      cell: (row: any) => row.firstName,
+      sortable: true,
+      filter: 'text',
+    },
+    {
+      id: 'lastName',
+      header: 'Last Name',
+      cell: (row: any) => row.lastName,
+      sortable: true,
+      filter: 'text',
+    },
+    {
+      id: 'email',
+      header: 'Email',
+      cell: (row: any) => row.email,
+      sortable: true,
+      filter: 'text',
+    },
+    {
+      id: 'role',
+      header: 'Role',
+      cell: (row: any) => row.role,
+      sortable: true,
+      filter: 'select',
+      filterOptions: [
+        { label: 'Admin', value: 'Admin' },
+        { label: 'Editor', value: 'Editor' },
+        { label: 'User', value: 'User' },
+      ],
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: (row: any) => {
+        const statusColors: Record<string, BadgeColorScheme> = {
+          Active: 'success',
+          Inactive: 'error',
+          Pending: 'warning',
+        };
+        const status = row.status as keyof typeof statusColors;
+        return (
+          <Badge colorScheme={statusColors[status] || 'neutral'}>
+            {row.status}
+          </Badge>
+        );
+      },
+      sortable: true,
+      filter: 'select',
+      filterOptions: [
+        { label: 'Active', value: 'Active' },
+        { label: 'Inactive', value: 'Inactive' },
+        { label: 'Pending', value: 'Pending' },
+      ],
+    },
+    {
+      id: 'lastLogin',
+      header: 'Last Login',
+      cell: (row: any) => row.lastLogin,
+      sortable: true,
+      filter: 'date',
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: (row: any) => (
+        <div className="flex space-x-2">
+          <Button size="sm" variant="ghost" leftIcon={FaEdit} />
+          <Button size="sm" variant="ghost" leftIcon={FaTrash} />
+        </div>
+      ),
+    },
+  ];
+  
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const simulateLoadingData = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  };
+  
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">DataGrid Component</h2>
+      
+      <div className="space-y-4 mb-6">
+        <Typography variant="body1">
+          The DataGrid component provides a powerful way to display and interact with tabular data.
+          It includes features like sorting, filtering, pagination, and row selection.
+        </Typography>
+        
+        <div className="flex space-x-2">
+          <Button size="sm" variant="primary" leftIcon={FaPlus}>Add User</Button>
+          <Button size="sm" variant="outline" leftIcon={FaDownload}>Export</Button>
+          <Button size="sm" variant="ghost" onClick={simulateLoadingData}>Simulate Loading</Button>
+        </div>
+      </div>
+      
+      <Subsection title="Basic DataGrid">
+        <div className="w-full">
+          <DataGrid
+            data={userData}
+            columns={columns}
+            isLoading={isLoading}
+            showPagination={true}
+            showToolbar={true}
+            hoverable={true}
+            striped={true}
+            bordered={true}
+            defaultPageSize={5}
+            pageSizeOptions={[5, 10, 20]}
+            allowMultiSort={true}
+            initialSort={{ id: 'id', direction: 'asc' }}
+            getRowId={(row) => row.id.toString()}
+          />
+        </div>
+      </Subsection>
+      
+      <Subsection title="DataGrid Features">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Sorting</h3>
+            <p className="text-text-muted mb-4">
+              Click on column headers to sort data. Support for multi-column sorting.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Filtering</h3>
+            <p className="text-text-muted mb-4">
+              Use the search bar or column filters to filter data based on different criteria.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Pagination</h3>
+            <p className="text-text-muted mb-4">
+              Navigate through data pages and adjust the number of items per page.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Customizable Columns</h3>
+            <p className="text-text-muted mb-4">
+              Define column rendering, sorting, and filtering behavior.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Loading States</h3>
+            <p className="text-text-muted mb-4">
+              Shows loading indicators when data is being fetched or processed.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Server-Side Operations</h3>
+            <p className="text-text-muted mb-4">
+              Supports server-side sorting, filtering, and pagination for large datasets.
+            </p>
+          </Card>
+        </div>
+      </Subsection>
+    </div>
+  );
+}
+
+// Carousel showcase component
+function CarouselShowcase() {
+  // Sample image items for the carousel
+  const imageItems = [
+    <div key="1" className="h-64 bg-primary/20 rounded-lg flex items-center justify-center">
+      <Typography variant="h3" className="text-primary">Slide 1</Typography>
+    </div>,
+    <div key="2" className="h-64 bg-secondary/20 rounded-lg flex items-center justify-center">
+      <Typography variant="h3" className="text-secondary">Slide 2</Typography>
+    </div>,
+    <div key="3" className="h-64 bg-success/20 rounded-lg flex items-center justify-center">
+      <Typography variant="h3" className="text-success">Slide 3</Typography>
+    </div>,
+    <div key="4" className="h-64 bg-warning/20 rounded-lg flex items-center justify-center">
+      <Typography variant="h3" className="text-warning">Slide 4</Typography>
+    </div>,
+    <div key="5" className="h-64 bg-error/20 rounded-lg flex items-center justify-center">
+      <Typography variant="h3" className="text-error">Slide 5</Typography>
+    </div>
+  ];
+
+  // Sample card items for the carousel
+  const cardItems = [
+         <Card key="card1" className="h-64 p-4">
+       <Typography variant="h4" className="mb-2">Product 1</Typography>
+       <Typography variant="body1">High-quality premium product with excellent features.</Typography>
+       <div className="mt-4 flex items-center text-warning">
+         <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+         <span className="ml-2 text-text-secondary">(5.0)</span>
+       </div>
+       <Button className="mt-auto" variant="primary">Learn More</Button>
+     </Card>,
+     <Card key="card2" className="h-64 p-4">
+       <Typography variant="h4" className="mb-2">Product 2</Typography>
+       <Typography variant="body1">Affordable option with great value for money.</Typography>
+       <div className="mt-4 flex items-center text-warning">
+         <FaStar /><FaStar /><FaStar /><FaStar /><FaRegStar />
+         <span className="ml-2 text-text-secondary">(4.0)</span>
+       </div>
+       <Button className="mt-auto" variant="primary">Learn More</Button>
+     </Card>,
+     <Card key="card3" className="h-64 p-4">
+       <Typography variant="h4" className="mb-2">Product 3</Typography>
+       <Typography variant="body1">Premium features with excellent build quality.</Typography>
+       <div className="mt-4 flex items-center text-warning">
+         <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+         <span className="ml-2 text-text-secondary">(4.5)</span>
+       </div>
+       <Button className="mt-auto" variant="primary">Learn More</Button>
+     </Card>,
+  ];
+
+  const [autoPlay, setAutoPlay] = useState(false);
+  const [effect, setEffect] = useState<'slide' | 'fade' | 'zoom'>('slide');
+  const [showArrows, setShowArrows] = useState(true);
+  const [showDots, setShowDots] = useState(true);
+  const [showThumbnails, setShowThumbnails] = useState(false);
+  const [interval, setInterval] = useState(3000);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleSlideChange = (index: number) => {
+    setActiveIndex(index);
+  };
+
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Carousel Component</h2>
+      
+      <Subsection title="Basic Carousel">
+        <div className="w-full">
+          <Carousel 
+            items={imageItems}
+            autoPlay={autoPlay}
+            interval={interval}
+            effect={effect}
+            showArrows={showArrows}
+            showDots={showDots}
+            showThumbnails={showThumbnails}
+            onSlideChange={handleSlideChange}
+            className="mb-4"
+            height={300}
+          />
+          
+          <div className="mt-6 flex flex-wrap gap-4">
+            <div className="flex items-center">
+              <Checkbox
+                id="autoplay-toggle"
+                checked={autoPlay}
+                onChange={() => setAutoPlay(!autoPlay)}
+              />
+              <label htmlFor="autoplay-toggle" className="ml-2">
+                Auto Play
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <Checkbox
+                id="arrows-toggle"
+                checked={showArrows}
+                onChange={() => setShowArrows(!showArrows)}
+              />
+              <label htmlFor="arrows-toggle" className="ml-2">
+                Show Arrows
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <Checkbox
+                id="dots-toggle"
+                checked={showDots}
+                onChange={() => setShowDots(!showDots)}
+              />
+              <label htmlFor="dots-toggle" className="ml-2">
+                Show Dots
+              </label>
+            </div>
+            
+            <div className="flex items-center">
+              <Checkbox
+                id="thumbnails-toggle"
+                checked={showThumbnails}
+                onChange={() => setShowThumbnails(!showThumbnails)}
+              />
+              <label htmlFor="thumbnails-toggle" className="ml-2">
+                Show Thumbnails
+              </label>
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <label className="block mb-2">Transition Effect:</label>
+            <div className="flex gap-4">
+              <button 
+                className={`px-3 py-1 rounded-md ${effect === 'slide' ? 'bg-primary text-white' : 'bg-bg-muted'}`} 
+                onClick={() => setEffect('slide')}
+              >
+                Slide
+              </button>
+              <button 
+                className={`px-3 py-1 rounded-md ${effect === 'fade' ? 'bg-primary text-white' : 'bg-bg-muted'}`} 
+                onClick={() => setEffect('fade')}
+              >
+                Fade
+              </button>
+              <button 
+                className={`px-3 py-1 rounded-md ${effect === 'zoom' ? 'bg-primary text-white' : 'bg-bg-muted'}`} 
+                onClick={() => setEffect('zoom')}
+              >
+                Zoom
+              </button>
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <label className="block mb-2">Interval (ms): {interval}</label>
+            <input 
+              type="range" 
+              min="1000" 
+              max="10000" 
+              step="500" 
+              value={interval} 
+              onChange={(e) => setInterval(Number(e.target.value))}
+              className="w-full max-w-md"
+            />
+          </div>
+          
+          <div className="mt-4 p-3 bg-bg-muted rounded-lg text-sm">
+            <p>Current slide: {activeIndex + 1} of {imageItems.length}</p>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="Content Carousel">
+        <div className="w-full">
+          <Carousel 
+            items={cardItems}
+            autoPlay={true}
+            interval={5000}
+            effect="fade"
+            showArrows={true}
+            showDots={true}
+            className="mb-4"
+            height={300}
+          />
+        </div>
+      </Subsection>
+      
+      <Subsection title="Use Cases">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Image Gallery</h3>
+            <p className="text-text-muted mb-4">
+              Perfect for showcasing a collection of images with thumbnails and fullscreen options.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Product Showcase</h3>
+            <p className="text-text-muted mb-4">
+              Highlight product features, variations, or different views with interactive navigation.
+            </p>
+          </Card>
+          
+          <Card className="p-4">
+            <h3 className="text-lg font-medium mb-2">Testimonials</h3>
+            <p className="text-text-muted mb-4">
+              Cycle through customer reviews or testimonials with autoplay for a dynamic presentation.
+            </p>
+          </Card>
         </div>
       </Subsection>
     </div>

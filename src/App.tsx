@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Header, Footer } from './components/organisms';
 import ComponentShowcasePage from './pages/ComponentShowcasePage';
+import TestCarousel from './pages/TestCarousel';
 
 // Home page placeholder
 const HomePage = () => {
@@ -126,7 +127,8 @@ function App() {
     // Navigation items for the header
     const navItems = [
       { label: 'Home', href: '/', isActive: location.pathname === '/' },
-      { label: 'Component Showcase', href: '/components', isActive: location.pathname === '/components' }
+      { label: 'Component Showcase', href: '/components', isActive: location.pathname === '/components' },
+      { label: 'Test Carousel', href: '/test-carousel', isActive: location.pathname === '/test-carousel' }
     ];
     
     const handleNavItemClick = (item: { label: string; href: string; isActive?: boolean }) => {
@@ -148,6 +150,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/components" element={<ComponentShowcasePage />} />
+              <Route path="/test-carousel" element={<TestCarousel />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </PageTransition>

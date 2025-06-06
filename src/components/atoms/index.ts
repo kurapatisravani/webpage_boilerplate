@@ -8,4 +8,6 @@ export * from './Switch';
 export * from './Icon/Icon';
 export * from './Spinner/Spinner';
 export * from './Dropdown';
-export * from './Avatar/Avatar'; 
+export * from './Avatar/Avatar';
+export * from './Select/Select';
+export * from './Textarea/Textarea'; 
