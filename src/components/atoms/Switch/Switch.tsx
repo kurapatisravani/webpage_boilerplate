@@ -83,7 +83,6 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   // Internal state for controlled/uncontrolled component
   const [isChecked, setIsChecked] = useState<boolean>(checked !== undefined ? checked : defaultChecked !== undefined ? defaultChecked : false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isPressed, setIsPressed] = useState<boolean>(false);
   
   // Generate unique ID if not provided
@@ -134,120 +133,47 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
     setIsPressed(false);
   };
   
-  // Size styles for switch track
-  const trackSizeClasses = {
-    sm: 'w-7 h-4',
-    md: 'w-9 h-5',
-    lg: 'w-12 h-6',
-  };
-  
-  // Size styles for switch thumb
-  const thumbSizeClasses = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5',
-  };
-  
-  // Thumb position calculations
-  const thumbPositions = {
-    sm: { initial: '2px', checked: 'calc(100% - 14px)' },
-    md: { initial: '2px', checked: 'calc(100% - 18px)' },
-    lg: { initial: '2px', checked: 'calc(100% - 22px)' },
-  };
-  
-  // Size styles for label
-  const labelSizeClasses = {
-    sm: 'text-xs',
-    md: 'text-sm',
-    lg: 'text-base',
-  };
-  
-  // Size styles for icons
-  const iconSizeClasses = {
-    sm: 'w-2 h-2',
-    md: 'w-2.5 h-2.5',
-    lg: 'w-3 h-3',
-  };
-  
-  // Color scheme styles
-  const colorSchemeClasses = {
-    primary: 'bg-primary',
-    secondary: 'bg-secondary',
-    success: 'bg-success',
-    error: 'bg-error',
-    warning: 'bg-warning',
+  // Size configurations
+  const sizeConfig = {
+    sm: {
+      track: 'w-8 h-4',
+      thumb: 'w-3 h-3',
+      label: 'text-xs',
+      icon: 'w-2 h-2',
+      thumbOffsetChecked: 'calc(100% - 12px)'
+    },
+    md: {
+      track: 'w-10 h-5',
+      thumb: 'w-4 h-4',
+      label: 'text-sm',
+      icon: 'w-2.5 h-2.5',
+      thumbOffsetChecked: 'calc(100% - 16px)'
+    },
+    lg: {
+      track: 'w-14 h-7',
+      thumb: 'w-6 h-6',
+      label: 'text-base',
+      icon: 'w-3 h-3',
+      thumbOffsetChecked: 'calc(100% - 24px)'
+    }
   };
   
   // Label placement styles
   const labelPlacementClasses = {
-    start: 'flex-row-reverse space-x-reverse space-x-2',
-    end: 'flex-row space-x-2',
-    top: 'flex-col-reverse space-y-reverse space-y-1',
-    bottom: 'flex-col space-y-1',
+    start: 'flex-row-reverse space-x-reverse space-x-3',
+    end: 'flex-row space-x-3',
+    top: 'flex-col-reverse space-y-reverse space-y-2',
+    bottom: 'flex-col space-y-2',
   };
   
-  // Animation variants for thumb based on animation style
-  const getThumbVariants = (): Variants => {
-    const variants: Record<string, any> = {
-      unchecked: {
-        x: thumbPositions[size].initial,
-      },
-      checked: {
-        x: thumbPositions[size].checked,
-      }
-    };
-
-    // Apply different transition types based on animationStyle
-    if (animationStyle === 'elastic') {
-      variants.checked.transition = {
-        type: 'spring',
-        stiffness: 500,
-        damping: 25
-      };
-      variants.unchecked.transition = {
-        type: 'spring',
-        stiffness: 500,
-        damping: 25
-      };
-    } else if (animationStyle === 'bounce') {
-      variants.checked.transition = {
-        type: 'spring',
-        stiffness: 400,
-        damping: 10
-      };
-      variants.unchecked.transition = {
-        type: 'spring',
-        stiffness: 400,
-        damping: 10
-      };
-    } else if (animationStyle === 'smooth') {
-      variants.checked.transition = {
-        type: 'tween',
-        duration: 0.2,
-        ease: 'easeInOut'
-      };
-      variants.unchecked.transition = {
-        type: 'tween',
-        duration: 0.2,
-        ease: 'easeInOut'
-      };
-    }
-
-    return variants;
-  };
-
   // Track animation variants
   const trackVariants: Variants = {
     unchecked: {
-      backgroundColor: 'var(--bg-surface-hover)',
+      backgroundColor: 'var(--color-bg-muted)',
       transition: { duration: 0.2 }
     },
     checked: {
-      backgroundColor: `var(--${colorScheme === 'primary' ? 'primary' : 
-                              colorScheme === 'secondary' ? 'secondary' : 
-                              colorScheme === 'success' ? 'success' : 
-                              colorScheme === 'error' ? 'error' : 
-                              colorScheme === 'warning' ? 'warning' : 'primary'})`,
+      backgroundColor: `var(--color-${colorScheme})`,
       transition: { duration: 0.2 }
     }
   };
@@ -286,135 +212,192 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(({
   // Track classes
   const trackClasses = [
     'relative rounded-full transition-colors duration-200',
-    trackSizeClasses[size],
+    sizeConfig[size].track,
     isFocused && !disabled 
-      ? `ring-2 ${colorScheme === 'primary' ? 'ring-primary/30' : 
-          colorScheme === 'secondary' ? 'ring-secondary/30' : 
-          colorScheme === 'success' ? 'ring-success/30' : 
-          colorScheme === 'error' ? 'ring-error/30' : 
-          colorScheme === 'warning' ? 'ring-warning/30' : 'ring-primary/30'}`
+      ? `ring-2 ring-${colorScheme}/30`
       : '',
     disabled ? 'opacity-50' : '',
   ].filter(Boolean).join(' ');
   
   // Thumb classes
   const thumbClasses = [
-    'absolute rounded-full bg-white shadow transform',
-    thumbSizeClasses[size],
-    'flex items-center justify-center',
+    'absolute rounded-full bg-white shadow-md',
+    sizeConfig[size].thumb,
+    'flex items-center justify-center top-1/2 -translate-y-1/2',
   ].filter(Boolean).join(' ');
   
+  // Calculate thumb position
+  const getThumbStyle = () => {
+    // Starting position (unchecked)
+    const startPosition = '2px';
+    
+    // End position (checked)
+    const endPosition = sizeConfig[size].thumbOffsetChecked;
+    
+    const position = isChecked ? endPosition : startPosition;
+    
+    // Spring transition based on animation style
+    let transition = '';
+    if (animationStyle === 'elastic') {
+      transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    } else if (animationStyle === 'bounce') {
+      transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+    } else if (animationStyle === 'smooth') {
+      transition = 'all 0.2s ease-in-out';
+    } else {
+      transition = 'none';
+    }
+    
+    return {
+      left: position,
+      transition: enableAnimation ? transition : 'none'
+    };
+  };
+  
+  // Handle click on the label (for better UX)
+  const handleLabelClick = (e: React.MouseEvent) => {
+    // Prevent the default label behavior to handle it manually
+    e.preventDefault();
+    
+    if (disabled || readOnly) return;
+    
+    // Create a synthetic change event
+    const syntheticEvent = {
+      target: { checked: !isChecked },
+      currentTarget: { checked: !isChecked },
+      preventDefault: () => {},
+      stopPropagation: () => {}
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    // Update the internal state if uncontrolled
+    if (checked === undefined) {
+      setIsChecked(!isChecked);
+    }
+    
+    // Call the onChange handler if provided
+    if (onChange) {
+      onChange(syntheticEvent);
+    }
+  };
+
+  // Calculate ripple position
+  const getRipplePosition = () => {
+    const rippleOffset = {
+      sm: { left: isChecked ? 'calc(100% - 8px)' : '8px' },
+      md: { left: isChecked ? 'calc(100% - 10px)' : '10px' },
+      lg: { left: isChecked ? 'calc(100% - 14px)' : '14px' }
+    };
+    
+    return rippleOffset[size].left;
+  };
+  
   return (
-    <motion.label
-      htmlFor={switchId}
+    <motion.div
       className={containerClasses}
       initial={enableAnimation ? "initial" : false}
       animate={enableAnimation ? "animate" : false}
       variants={containerVariants}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
     >
-      <div className="relative">
-        {/* Hidden actual input for accessibility */}
-        <input
-          ref={ref}
-          type="checkbox"
-          id={switchId}
-          name={name}
-          value={value}
-          checked={isChecked}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          disabled={disabled}
-          required={required}
-          readOnly={readOnly}
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledby}
-          className="sr-only" // Visually hidden but accessible
-          {...props}
-        />
-        
-        {/* Custom switch visual */}
-        <motion.div 
-          className={trackClasses}
-          variants={trackVariants}
-          animate={isChecked ? "checked" : "unchecked"}
-          data-state={isChecked ? "checked" : "unchecked"}
-        >
-          {/* Icons in track */}
-          <div className="absolute inset-0 flex justify-between items-center px-1 pointer-events-none">
-            {checkedIcon && (
-              <div className={`text-white ${iconSizeClasses[size]} ${isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
-                {checkedIcon}
-              </div>
-            )}
-            {uncheckedIcon && (
-              <div className={`text-text-muted ml-auto ${iconSizeClasses[size]} ${isChecked ? 'opacity-0' : 'opacity-100'} transition-opacity`}>
-                {uncheckedIcon}
-              </div>
-            )}
-          </div>
+      <label
+        htmlFor={switchId}
+        className="inline-flex relative items-center cursor-pointer select-none"
+        onClick={handleLabelClick}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+      >
+        <div className="relative">
+          {/* Hidden actual input for accessibility */}
+          <input
+            ref={ref}
+            type="checkbox"
+            id={switchId}
+            name={name}
+            value={value}
+            checked={isChecked}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            disabled={disabled}
+            required={required}
+            readOnly={readOnly}
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledby}
+            className="sr-only" // Visually hidden but accessible
+            {...props}
+          />
           
-          {/* Thumb/Handle */}
-          <motion.div
-            className={thumbClasses}
-            variants={getThumbVariants()}
-            animate={isChecked ? 'checked' : 'unchecked'}
-            whileHover={!disabled ? { scale: 1.1 } : undefined}
-            whileTap={!disabled ? { scale: 0.95 } : undefined}
+          {/* Custom switch visual */}
+          <motion.div 
+            className={trackClasses}
+            variants={trackVariants}
+            animate={isChecked ? "checked" : "unchecked"}
+            data-state={isChecked ? "checked" : "unchecked"}
           >
-            {thumbIcon && (
-              <div className="absolute inset-0 flex items-center justify-center text-text-muted">
-                {thumbIcon}
-              </div>
-            )}
-          </motion.div>
+            {/* Icons in track */}
+            <div className="absolute inset-0 flex justify-between items-center px-1 pointer-events-none">
+              {checkedIcon && (
+                <div className={`text-white ${sizeConfig[size].icon} ${isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
+                  {checkedIcon}
+                </div>
+              )}
+              {uncheckedIcon && (
+                <div className={`text-text-muted ml-auto ${sizeConfig[size].icon} ${isChecked ? 'opacity-0' : 'opacity-100'} transition-opacity`}>
+                  {uncheckedIcon}
+                </div>
+              )}
+            </div>
+            
+            {/* Thumb/Handle */}
+            <div
+              className={thumbClasses}
+              style={getThumbStyle()}
+            >
+              {thumbIcon && (
+                <div className="absolute inset-0 flex items-center justify-center text-text-muted">
+                  {thumbIcon}
+                </div>
+              )}
+            </div>
 
-          {/* Ripple effect */}
-          <AnimatePresence>
-            {isPressed && !disabled && (
-              <motion.span
-                key="ripple"
-                className={`absolute rounded-full ${
-                  colorScheme === 'primary' ? 'bg-primary/20' :
-                  colorScheme === 'secondary' ? 'bg-secondary/20' :
-                  colorScheme === 'success' ? 'bg-success/20' :
-                  colorScheme === 'error' ? 'bg-error/20' :
-                  colorScheme === 'warning' ? 'bg-warning/20' : 'bg-primary/20'
-                }`}
-                style={{ 
-                  width: size === 'sm' ? '16px' : size === 'md' ? '20px' : '24px', 
-                  height: size === 'sm' ? '16px' : size === 'md' ? '20px' : '24px',
-                  left: isChecked 
-                    ? `calc(${thumbPositions[size].checked} - ${size === 'sm' ? '6px' : size === 'md' ? '8px' : '10px'})` 
-                    : `calc(${thumbPositions[size].initial} - ${size === 'sm' ? '6px' : size === 'md' ? '8px' : '10px'})`,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                }}
-                variants={rippleVariants}
-                initial="initial"
-                animate="animate"
-                exit={{ opacity: 0, transition: { duration: 0.2 } }}
-              />
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </div>
-      
-      {/* Label text */}
-      {label && (
-        <span className={`
-          ${labelSizeClasses[size]} 
-          ${disabled ? 'text-text-muted' : 'text-text-base'}
-        `}>
-          {label}
-          {required && <span className="text-error ml-1">*</span>}
-        </span>
-      )}
-    </motion.label>
+            {/* Ripple effect */}
+            <AnimatePresence>
+              {isPressed && !disabled && (
+                <motion.span
+                  key="ripple"
+                  className="absolute rounded-full"
+                  style={{ 
+                    width: size === 'sm' ? '18px' : size === 'md' ? '22px' : '28px', 
+                    height: size === 'sm' ? '18px' : size === 'md' ? '22px' : '28px',
+                    backgroundColor: isChecked 
+                      ? `var(--color-${colorScheme}, rgba(29, 78, 216, 0.2))`
+                      : 'rgba(107, 114, 128, 0.2)',
+                    opacity: 0.5,
+                    left: getRipplePosition(),
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                  variants={rippleVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                />
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+        
+        {/* Label text */}
+        {label && (
+          <span className={`
+            ${sizeConfig[size].label} 
+            ${disabled ? 'text-text-muted' : 'text-text'}
+          `}>
+            {label}
+            {required && <span className="text-error ml-1">*</span>}
+          </span>
+        )}
+      </label>
+    </motion.div>
   );
 });
 

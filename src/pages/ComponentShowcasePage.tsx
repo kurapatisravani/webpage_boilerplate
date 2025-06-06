@@ -21,7 +21,7 @@ import { Modal } from '../components/organisms/Modal/Modal';
 import { Badge } from '../components/atoms/Badge/Badge';
 import { Checkbox } from '../components/atoms/Checkbox/Checkbox';
 import { Radio } from '../components/atoms/Radio/Radio';
-import { Switch } from '../components/atoms/Switch/Switch';
+import { Switch } from '../components/atoms/Switch';
 import { Icon } from '../components/atoms/Icon/Icon';
 import { Spinner } from '../components/atoms/Spinner/Spinner';
 import { Dropdown } from '../components/atoms/Dropdown';
