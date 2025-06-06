@@ -9,11 +9,11 @@ import {
   FaGift, FaLink, FaFileAlt, FaCode, FaBook, FaCalendar, FaCog, FaGlobe,
   FaBoxOpen, FaLayerGroup, FaPalette, FaUniversalAccess, FaCubes, FaCircle
 } from 'react-icons/fa';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
+
 import { Button } from '../components/atoms/Button/Button';
 import { Typography } from '../components/atoms/Typography/Typography';
 import { Input } from '../components/atoms/Input/Input';
-import { Accordion } from '../components/molecules/Accordion/Accordion';
+
 import { Tabs } from '../components/molecules/Tabs/Tabs';
 import { Card } from '../components/molecules/Card/Card';
 import { Tooltip } from '../components/molecules/Tooltip/Tooltip';
@@ -32,6 +32,8 @@ import type { DateRange } from '../components/molecules/Calendar/Calendar';
 import { DatePicker } from '../components/molecules/DatePicker/DatePicker';
 import { ToastProvider, useToast } from '../components/molecules/Toast';
 import type { ToastType, ToastPosition, ToastAnimationStyle } from '../components/molecules/Toast';
+import { motion } from 'framer-motion';
+import { Avatar } from '../components/atoms/Avatar/Avatar';
 
 // Type definitions
 type ComponentCategory = 'atoms' | 'molecules' | 'organisms' | 'templates' | 'pages';
@@ -147,12 +149,13 @@ const componentRegistry: ComponentType[] = [
     implemented: true
   },
   {
-    name: 'Accordion',
-    category: 'molecules',
-    description: 'Expandable/collapsible content sections with smooth animations',
-    component: AccordionShowcase,
+    name: 'Avatar',
+    category: 'atoms',
+    description: 'User profile images with different sizes, shapes and fallback options',
+    component: AvatarShowcase,
     implemented: true
   },
+
   {
     name: 'Tabs',
     category: 'molecules',
@@ -175,6 +178,13 @@ const componentRegistry: ComponentType[] = [
     implemented: true
   },
   {
+    name: 'Alert',
+    category: 'molecules',
+    description: 'Informational messages with different severity levels and actions',
+    component: PlaceholderShowcase,
+    implemented: false
+  },
+  {
     name: 'Modal',
     category: 'organisms',
     description: 'Dialog window that appears over the main content',
@@ -194,6 +204,13 @@ const componentRegistry: ComponentType[] = [
     description: 'Data table with sorting, pagination, and selection capabilities',
     component: TableShowcase,
     implemented: true
+  },
+  {
+    name: 'Drawer',
+    category: 'organisms',
+    description: 'Side panel that slides in from the edge of the screen for navigation or information',
+    component: PlaceholderShowcase,
+    implemented: false
   },
   {
     name: 'Colors & Themes',
@@ -911,129 +928,7 @@ function ColorsShowcase() {
   );
 }
 
-// Accordion showcase component
-function AccordionShowcase() {
-  return (
-    <div className="p-6 bg-background rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-text-primary">Accordion</h2>
 
-      <Subsection title="Default Accordion">
-        <div className="w-full max-w-2xl">
-          <Accordion
-            items={[
-              {
-                title: "What is a design system?",
-                children: "A design system is a collection of reusable components, guided by clear standards, that can be assembled together to build any number of applications."
-              },
-              {
-                title: "Why use a design system?",
-                children: "Design systems help teams build better products faster by making design reusable - reusability makes scale possible. This is why the most advanced tech companies and organizations use design systems."
-              },
-              {
-                title: "How to get started?",
-                children: "Start by identifying your core components, establish design tokens, create a component library, and document everything clearly for your team."
-              }
-            ]}
-          />
-        </div>
-      </Subsection>
-
-      <Subsection title="Accordion Variants">
-        <div className="w-full max-w-2xl space-y-4">
-          <Accordion
-            variant="bordered"
-            items={[
-              {
-                title: "Bordered Variant",
-                children: "This accordion uses a bordered style with rounded corners and border highlights."
-              },
-              {
-                title: "Multiple Items",
-                children: "You can have multiple items in a bordered accordion."
-              }
-            ]}
-          />
-
-          <Accordion
-            variant="filled"
-            items={[
-              {
-                title: "Filled Variant",
-                children: "This accordion uses a filled style with background colors for different states."
-              },
-              {
-                title: "Interactive States",
-                children: "Notice how the background changes on hover and when expanded."
-              }
-            ]}
-          />
-
-          <Accordion
-            variant="minimal"
-            items={[
-              {
-                title: "Minimal Variant",
-                children: "A clean, minimal style with subtle borders and transitions."
-              },
-              {
-                title: "Simple Design",
-                children: "Perfect for content-heavy pages where you want to maintain focus."
-              }
-            ]}
-          />
-        </div>
-      </Subsection>
-
-      <Subsection title="Accordion with Icons">
-        <div className="w-full max-w-2xl">
-          <Accordion
-            items={[
-              {
-                title: "Documentation",
-                icon: <FaFileAlt className="text-primary" />,
-                children: "Access our comprehensive documentation to learn more about our components."
-              },
-              {
-                title: "Examples",
-                icon: <FaCode className="text-primary" />,
-                children: "Browse through our example implementations to see components in action."
-              },
-              {
-                title: "Resources",
-                icon: <FaBook className="text-primary" />,
-                children: "Find additional resources, tutorials, and best practices."
-              }
-            ]}
-          />
-        </div>
-      </Subsection>
-
-      <Subsection title="Interactive Features">
-        <div className="w-full max-w-2xl">
-          <Accordion
-            multiple
-            collapsible
-            items={[
-              {
-                title: "Multiple Open Items",
-                children: "This accordion allows multiple items to be open at once."
-              },
-              {
-                title: "Collapsible Items",
-                children: "Items can be collapsed by clicking them again."
-              },
-              {
-                title: "Disabled State",
-                disabled: true,
-                children: "This item is disabled and cannot be opened."
-              }
-            ]}
-          />
-        </div>
-      </Subsection>
-    </div>
-  );
-}
 
 // Tabs showcase component
 function TabsShowcase() {
@@ -3764,43 +3659,380 @@ function DatePickerShowcase() {
   );
 }
 
+// Avatar showcase component
+function AvatarShowcase() {
+  return (
+    <div className="p-6 bg-background rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-text-primary">Avatar</h2>
+      
+      <Subsection title="Sizes">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar size="xs" />
+            <span className="text-xs text-text-muted">xs</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar size="sm" />
+            <span className="text-xs text-text-muted">sm</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar size="md" />
+            <span className="text-xs text-text-muted">md</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar size="lg" />
+            <span className="text-xs text-text-muted">lg</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar size="xl" />
+            <span className="text-xs text-text-muted">xl</span>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="Shapes">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar shape="circle" size="lg" />
+            <span className="text-xs text-text-muted">circle</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar shape="square" size="lg" />
+            <span className="text-xs text-text-muted">square</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar shape="rounded" size="lg" />
+            <span className="text-xs text-text-muted">rounded</span>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="With Image">
+        <div className="flex items-center gap-4">
+          <Avatar 
+            src="https://randomuser.me/api/portraits/women/44.jpg" 
+            alt="Woman portrait" 
+            size="lg" 
+          />
+          <Avatar 
+            src="https://randomuser.me/api/portraits/men/32.jpg" 
+            alt="Man portrait" 
+            size="lg" 
+            shape="rounded" 
+          />
+          <Avatar 
+            src="https://randomuser.me/api/portraits/women/68.jpg" 
+            alt="Woman portrait" 
+            size="lg" 
+            shape="square" 
+          />
+        </div>
+      </Subsection>
+      
+      <Subsection title="Fallback Options">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              fallback="initials" 
+              initials="JD" 
+              size="lg" 
+            />
+            <span className="text-xs text-text-muted">initials</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              fallback="icon" 
+              size="lg" 
+            />
+            <span className="text-xs text-text-muted">icon</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              fallback="color" 
+              initials="AB" 
+              size="lg" 
+            />
+            <span className="text-xs text-text-muted">color</span>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="With Border">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              border="thin" 
+              fallback="initials" 
+              initials="JD" 
+              size="lg" 
+            />
+            <span className="text-xs text-text-muted">thin</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              border="medium" 
+              fallback="initials" 
+              initials="AB" 
+              size="lg" 
+            />
+            <span className="text-xs text-text-muted">medium</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              border="thick" 
+              fallback="initials" 
+              initials="CD" 
+              size="lg" 
+            />
+            <span className="text-xs text-text-muted">thick</span>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="With Status">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              status="online" 
+              size="lg" 
+              fallback="initials" 
+              initials="ON" 
+            />
+            <span className="text-xs text-text-muted">online</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              status="offline" 
+              size="lg" 
+              fallback="initials" 
+              initials="OF" 
+            />
+            <span className="text-xs text-text-muted">offline</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              status="away" 
+              size="lg" 
+              fallback="initials" 
+              initials="AW" 
+            />
+            <span className="text-xs text-text-muted">away</span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Avatar 
+              status="busy" 
+              size="lg" 
+              fallback="initials" 
+              initials="BS" 
+            />
+            <span className="text-xs text-text-muted">busy</span>
+          </div>
+        </div>
+      </Subsection>
+      
+      <Subsection title="Interactive Avatars">
+        <div className="flex items-center gap-4">
+          <Avatar 
+            interactive 
+            onClick={() => alert('Avatar clicked!')} 
+            size="lg" 
+            src="https://randomuser.me/api/portraits/women/33.jpg" 
+          />
+          <Avatar 
+            interactive 
+            onClick={() => alert('Avatar clicked!')} 
+            size="lg" 
+            fallback="initials" 
+            initials="CL" 
+          />
+          <Avatar 
+            interactive 
+            onClick={() => alert('Avatar clicked!')} 
+            size="lg" 
+            status="online" 
+            fallback="color" 
+            initials="IN" 
+          />
+        </div>
+      </Subsection>
+      
+      <Subsection title="Avatar Groups">
+        <div className="flex -space-x-4">
+          <Avatar 
+            src="https://randomuser.me/api/portraits/women/44.jpg" 
+            border="thin" 
+            size="lg" 
+          />
+          <Avatar 
+            src="https://randomuser.me/api/portraits/men/43.jpg" 
+            border="thin" 
+            size="lg" 
+          />
+          <Avatar 
+            fallback="initials" 
+            initials="JD" 
+            border="thin" 
+            size="lg" 
+          />
+          <Avatar 
+            fallback="color" 
+            initials="+" 
+            border="thin" 
+            size="lg" 
+          />
+        </div>
+      </Subsection>
+    </div>
+  );
+}
+
 // Main component showcase page
 const ComponentShowcasePage: React.FC = () => {
   const [activeComponent, setActiveComponent] = useState('Button');
   
   // Find the active component from registry
   const currentComponent = componentRegistry.find(c => c.name === activeComponent) || componentRegistry[0];
-
+  
+  // Define animation variants for staggered animations - only for content area
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.07,
+        delayChildren: 0.1
+      }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 300
+      }
+    }
+  };
+  
+  // Remove sidebar animation variants and only keep content animation
+  const contentVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+        delay: 0.15
+      }
+    }
+  };
+  
+  // Enhanced navigation component without animations when changing components
+  const EnhancedComponentNav = () => (
+    <div className="w-full md:w-64 flex-shrink-0">
+      <aside className="bg-bg-surface p-4 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold mb-4 text-primary">
+          Components
+        </h3>
+        <div className="space-y-4">
+          {['atoms', 'molecules', 'organisms', 'templates', 'pages'].map((category) => {
+            const categoryComponents = componentRegistry.filter(c => c.category === category);
+            if (categoryComponents.length === 0) return null;
+            
+            return (
+              <div key={category} className="mb-4">
+                <h4 className="text-md font-medium mb-2 text-text-secondary capitalize">{category}</h4>
+                <ul className="space-y-1">
+                  {categoryComponents.map(comp => (
+                    <motion.li 
+                      key={comp.name}
+                      whileHover={{ x: 2 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    >
+                      <button
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                          activeComponent === comp.name
+                            ? 'bg-primary/10 text-primary font-medium'
+                            : 'text-text-muted hover:text-text hover:bg-bg-muted'
+                        }`}
+                        onClick={() => setActiveComponent(comp.name)}
+                      >
+                        {comp.name}
+                      </button>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </aside>
+    </div>
+  );
+  
   return (
     <ToastProvider defaultPosition="bottom-right">
       <div className="min-h-screen bg-bg-base text-text-base p-4 md:p-8 transition-colors duration-300">
-        <header className="flex justify-between items-center mb-8">
+        <motion.header 
+          className="mb-8"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            type: "spring",
+            damping: 20,
+            stiffness: 100,
+            duration: 0.3
+          }}
+        >
           <h1 className="text-4xl font-bold text-primary">Component Showcase</h1>
-          <ThemeToggleButton />
-        </header>
-
+        </motion.header>
+  
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar navigation */}
-          <div className="w-full md:w-64 flex-shrink-0">
-            <ComponentNav 
-              components={componentRegistry}
-              activeComponent={activeComponent}
-              onSelectComponent={setActiveComponent}
-            />
-          </div>
-
-          {/* Main content area */}
-          <main className="flex-grow">
+          {/* Sidebar navigation - No animation on component change */}
+          <EnhancedComponentNav />
+  
+          {/* Main content area - Animate when component changes */}
+          <motion.main 
+            className="flex-grow"
+            key={activeComponent}
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <Section title={currentComponent.name}>
-              <div className="mb-4">
+              <motion.div 
+                className="mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
                 <p className="text-text-muted">{currentComponent.description}</p>
                 <div className="mt-1 text-sm text-text-muted">
                   Category: <span className="text-primary capitalize">{currentComponent.category}</span>
                 </div>
-              </div>
-              <currentComponent.component />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  delay: 0.4, 
+                  duration: 0.5,
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 100
+                }}
+              >
+                <currentComponent.component />
+              </motion.div>
             </Section>
-          </main>
+          </motion.main>
         </div>
       </div>
     </ToastProvider>
